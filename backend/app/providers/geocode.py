@@ -5,6 +5,7 @@ import re
 import time
 
 from .. import config
+from ..data import stations as _stations
 from . import base, photon
 
 SOURCE = "OpenStreetMap Nominatim"
@@ -92,3 +93,38 @@ def resolve(query: str) -> dict | None:
     return {"broad": pick.get("type") in BROAD_TYPES or named_like_state, "name": name, "display": pick.get("display_name"), "lat": float(pick["lat"]), "lon": float(pick["lon"]),
             "country": a.get("country"), "country_code": (a.get("country_code") or "").upper(), "kind": pick.get("type"),
             "provenance": base.prov(SOURCE, kind, at, "ODbL", 0.85)}
+
+
+def _mapbox_reverse(lat: float, lon: float) -> dict | None:
+    if not config.MAPBOX_TOKEN:
+        return None
+    try:
+        base.throttle("mapbox-geocode", 0.05)
+        d = base.http_json("GET", f"https://api.mapbox.com/geocoding/v5/mapbox.places/{lon},{lat}.json", retries=0, timeout=6,
+                           params={"access_token": config.MAPBOX_TOKEN, "types": "place,locality", "language": "en", "limit": 1})
+        f = d["features"][0]
+    except Exception:  # noqa: BLE001
+        return None
+    place = next((c["text"] for c in f.get("context", []) if c["id"].startswith("place")), None)
+    name = f["text"] if "place" in f.get("place_type", []) or not place else place   # a locality inside a city is named by the city
+    cc = next((c.get("short_code", "") for c in f.get("context", []) if c["id"].startswith("country")), "")
+    return {"name": name, "display": f["place_name"], "country": f["place_name"].split(",")[-1].strip(), "country_code": cc.upper()}
+
+
+def at(lat: float, lon: float, label: str | None = None) -> dict | None:
+    """A place given by exact coordinates (picked from the suggestions, or the visitor's own location). The coordinates are kept as they are;
+    the name and country come from a reverse lookup, or from the label when that is unavailable."""
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return None
+    r = None if config.OFFLINE else (photon.reverse(lat, lon) or _mapbox_reverse(lat, lon))
+    parts = [p.strip() for p in (label or "").split(",") if p.strip()]
+    if not r:
+        g = resolve(label) if label else None  # offline or lookup failed: fall back to the text, keeping the exact point
+        if g and _stations._km((lat, lon), (g["lat"], g["lon"])) > 150:
+            g = None  # the text search found some other place far from this point: do not borrow its name or country
+        if not g and not parts:
+            return None
+        r = {"name": (g or {}).get("name") or parts[0], "display": (g or {}).get("display") or label, "country": (g or {}).get("country"), "country_code": (g or {}).get("country_code", "")}
+    spot = parts[0] if parts and photon.fold(parts[0]) != photon.fold(r["name"]) and not parts[0].lower().startswith("my location") else None
+    return {"broad": False, "name": r["name"], "display": label or r["display"], "lat": lat, "lon": lon, "country": r.get("country"), "country_code": r.get("country_code", ""),
+            "kind": "point", "spot": spot, "provenance": base.prov(photon.SOURCE, "live", None, "Exact coordinates; name from an OpenStreetMap reverse lookup", 0.85)}

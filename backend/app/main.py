@@ -600,8 +600,15 @@ def geocode_suggest(q: str = "", limit: int = 8):
 
 
 @app.get("/api/routes/options")
-def routes_options(origin: str, destination: str, date: str, travellers: int = 1, budget: float | None = None):
-    """Door-to-door ways to travel between ANY two places: live flights (+ cab transfers to the nearest airports), cab, bus, train."""
+def routes_options(origin: str, destination: str, date: str, travellers: int = 1, budget: float | None = None, trip: str = "one_way",
+                   origin_lat: float | None = None, origin_lon: float | None = None, dest_lat: float | None = None, dest_lon: float | None = None):
+    """Door-to-door ways to travel between ANY two places: live flights (+ transfers to the nearest airports), cab, bus, train between real stations.
+    `budget` is the money for THIS journey (all travellers), compared with the one-way or the round-trip cost according to `trip`.
+    Coordinates, when given (a picked suggestion or "my location"), are used exactly instead of looking the name up again."""
+    if trip not in ("one_way", "round_trip"):
+        raise HTTPException(422, "trip must be one_way or round_trip")
+    if budget is not None and budget <= 0:
+        raise HTTPException(422, "budget must be positive")
     from datetime import date as _d
     if not 1 <= travellers <= 20:
         raise HTTPException(422, "travellers must be 1..20")
@@ -611,13 +618,31 @@ def routes_options(origin: str, destination: str, date: str, travellers: int = 1
         raise HTTPException(422, "date must be YYYY-MM-DD")
     if when < _d.today():
         raise HTTPException(422, "date cannot be in the past")
-    og, dg = pgeocode.resolve(origin), pgeocode.resolve(destination)
+    og = pgeocode.at(origin_lat, origin_lon, origin) if origin_lat is not None and origin_lon is not None else pgeocode.resolve(origin)
+    dg = pgeocode.at(dest_lat, dest_lon, destination) if dest_lat is not None and dest_lon is not None else pgeocode.resolve(destination)
     if not og:
         raise HTTPException(404, f"I couldn't find a place called '{origin}'.")
     if not dg:
         raise HTTPException(404, f"I couldn't find a place called '{destination}'.")
-    res = proutes.build_options(og, dg, date, travellers, budget * 0.45 if budget else None)
-    return {"origin": {k: og[k] for k in ("name", "lat", "lon", "country", "country_code")}, "destination": {k: dg[k] for k in ("name", "lat", "lon", "country", "country_code")}, **res}
+    res = proutes.build_options(og, dg, date, travellers, budget, budget_basis=trip, budget_share=None)
+    for opt in res.get("options", []):  # a ride from/to a specific spot (a college, a station) is labelled with that spot, not just its town
+        first, last = opt["legs"][0], opt["legs"][-1]
+        if og.get("spot") and first["mode"] == "cab" and first["from"] == og["name"]:
+            first["from"] = opt["via"][0] = og["spot"]
+        if dg.get("spot") and last["mode"] == "cab" and last["to"] == dg["name"]:
+            last["to"] = opt["via"][-1] = dg["spot"]
+    keys = ("name", "display", "lat", "lon", "country", "country_code", "spot")
+    return {"origin": {k: og.get(k) for k in keys}, "destination": {k: dg.get(k) for k in keys}, "date": date, "trip": trip, **res}
+
+
+@app.get("/api/geocode/reverse")
+def geocode_reverse(lat: float, lon: float):
+    """Name for a point (used by "Use my location"). The coordinates never leave this request: nothing is stored."""
+    g = pgeocode.at(lat, lon, None)
+    if not g:
+        raise HTTPException(404, "Could not work out where that is. Type the place instead.")
+    label = ", ".join(dict.fromkeys(p.strip() for p in (g["display"] or g["name"]).split(",") if p.strip()))  # "Jaipur, Jaipur, Rajasthan" -> "Jaipur, Rajasthan"
+    return {"name": g["name"], "label": label, "lat": lat, "lon": lon, "country_code": g["country_code"]}
 
 
 @app.get("/api/live")

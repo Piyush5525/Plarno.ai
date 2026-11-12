@@ -149,7 +149,7 @@ with sync_playwright() as p:
     check("map loads the road route", lambda: expect(page.locator("#tab-panel").get_by_text("Road route:")).to_be_visible(timeout=20000))
     tab("travel").click()
     def travel():
-        page.locator("#tab-panel").get_by_role("button", name=re.compile("step by step")).first.click()
+        page.locator("#tab-panel").get_by_role("button", name=re.compile("route, map")).first.click()
         expect(page.locator("#tab-panel article ol li").first).to_be_visible()
         page.locator("#tab-panel").get_by_role("button", name="Fastest", exact=True).click()
         page.locator("#tab-panel").get_by_role("button", name="Choose this").first.click()
@@ -230,7 +230,7 @@ with sync_playwright() as p:
         page.get_by_role("button", name="Swap from and to").click()
         page.get_by_role("button", name="Compare", exact=True).click()
         expect(page.get_by_role("heading", level=2).filter(has_text="Jaipur")).to_be_visible(timeout=90000)
-        page.get_by_role("button", name=re.compile("step by step")).first.click(); expect(page.locator("article ol li").first).to_be_visible()
+        page.get_by_role("button", name=re.compile("route, map")).first.click(); expect(page.locator("article ol li").first).to_be_visible()
     check("transport: validation, swap, search, expand an option", transport)
 
     print("My trips and preferences")

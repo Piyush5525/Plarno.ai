@@ -41,7 +41,7 @@ def _serve(monkeypatch, photon_payload, mapbox_payload):
     monkeypatch.setattr(config, "OFFLINE", False)
     monkeypatch.setattr(config, "MAPBOX_TOKEN", "pk.test")
     monkeypatch.setattr(base, "http_json", fake)
-    suggest._cache.clear(); photon._cache.clear(); geocode._mb_cache.clear()
+    suggest._cache.clear(); photon._cache.clear(); photon._spots_cache.clear(); geocode._mb_cache.clear(); base.reset_breakers()
 
 
 def test_a_college_town_is_found_and_look_alike_villages_are_not(monkeypatch):
@@ -142,3 +142,33 @@ def test_college_towns_get_a_sensible_nearest_airport():
     assert (near["city"], near["iata"]) == ("Mangaluru", "IXE") and near["km"] < 60                   # used to be Goa, 234 km away
     assert airports.iata("Mangalore") == "IXE" and airports.iata("Vizag") == "VTZ" and airports.iata("Trichy") == "TRZ"   # everyday spellings work
     assert airports.nearest_airport(26.586, 74.854)["iata"] == "JAI"                                  # unchanged for Kishangarh
+
+SEARCHBOX = {"features": [
+    {"geometry": {"coordinates": [75.565, 26.844]}, "properties": {"name": "Manipal University Jaipur", "feature_type": "poi", "poi_category": ["education", "university"], "place_formatted": "Jaipur, 303007, India",
+                                                                   "context": {"place": {"name": "Jaipur"}, "region": {"name": "Rajasthan"}, "country": {"name": "India", "country_code": "IN"}}}},
+    {"geometry": {"coordinates": [75.565, 26.842]}, "properties": {"name": "Manipal University Library", "poi_category": ["education", "library", "university building"], "place_formatted": "Jaipur, India", "context": {"place": {"name": "Jaipur"}}}},
+    {"geometry": {"coordinates": [75.563, 26.843]}, "properties": {"name": "Nothing Before Coffee - Manipal University, Jaipur", "poi_category": ["café", "coffee"], "place_formatted": "Jaipur, India", "context": {}}},
+    {"geometry": {"coordinates": [75.57, 26.837]}, "properties": {"name": "Stay Well Hostel near Manipal University Jaipur", "poi_category": ["education", "university"], "place_formatted": "Jaipur, India", "context": {}}}]}
+
+
+def test_college_search_still_works_when_the_openstreetmap_server_is_down(monkeypatch):
+    calls = []
+
+    def fake(method, url, **kw):
+        calls.append(url)
+        if "searchbox" in url:
+            return SEARCHBOX
+        if "mapbox.com" in url:
+            return {"features": []}
+        raise RuntimeError("photon timed out")
+    monkeypatch.setattr(config, "OFFLINE", False); monkeypatch.setattr(config, "MAPBOX_TOKEN", "pk.test"); monkeypatch.setattr(base, "http_json", fake)
+    suggest._cache.clear(); photon._cache.clear(); photon._spots_cache.clear(); geocode._mb_cache.clear(); base.reset_breakers()
+    r = suggest.suggest("manipal university jaipur")
+    assert [(s["name"], s["kind"]) for s in r["suggestions"]] == [("Manipal University Jaipur", "college")]      # the campus only: no library, cafe or hostel
+    assert r["suggestions"][0]["label"] == "Manipal University Jaipur, Jaipur, Rajasthan, India" and r["source"] == "Mapbox Search"
+    n = sum("photon" in u for u in calls)
+    suggest.suggest("manipal univ")
+    assert sum("photon" in u for u in calls) == n          # after one failure the dead server is skipped (no timeout per keystroke)
+    g = geocode.resolve("Manipal University Jaipur")
+    assert g["spot"] == "Manipal University Jaipur" and g["name"] == "Jaipur" and g["country_code"] == "IN" and abs(g["lat"] - 26.844) < 1e-6
+    base.reset_breakers()

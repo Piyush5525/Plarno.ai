@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { api, Json } from '../api'
-import { GraduationCap, Landmark, MapPin, Plane, TrainFront } from './icons'
+import { GraduationCap, Landmark, LocateFixed, MapPin, Plane, TrainFront } from './icons'
 
 /** Icon and label for what kind of thing a suggestion is (a town has none: it is the default). */
 const KIND: Record<string, [typeof MapPin, string]> = { college: [GraduationCap, 'college'], school: [GraduationCap, 'school'], station: [TrainFront, 'station'], airport: [Plane, 'airport'], landmark: [Landmark, 'landmark'], port: [MapPin, 'port'] }
@@ -8,8 +8,10 @@ const KIND: Record<string, [typeof MapPin, string]> = { college: [GraduationCap,
 export type PlaceSuggestion = { name: string; context: string; label: string; lat: number | null; lon: number | null; broad: boolean; kind?: string }
 
 /** Place search box with real as-you-type suggestions for towns, colleges, stations and airports (OpenStreetMap + Mapbox, via the backend). Accessible combobox: arrows, Enter, Esc. */
-export default function PlaceInput({ value, onChange, onPick, placeholder, label, id, required, className = '', ariaLabel }: {
+export default function PlaceInput({ value, onChange, onPick, placeholder, label, id, required, className = '', ariaLabel, locate = false }: {
   value: string; onChange: (v: string) => void; onPick?: (s: PlaceSuggestion) => void; placeholder?: string; label?: string; id?: string; required?: boolean; className?: string; ariaLabel?: string
+  /** show a "Use my location" button: asks the browser for the position (only when pressed) and fills the box with where that is */
+  locate?: boolean
 }) {
   const uid = useId()
   const inputId = id ?? 'pi-' + uid
@@ -22,6 +24,27 @@ export default function PlaceInput({ value, onChange, onPick, placeholder, label
   const justPicked = useRef(false)
   const wrap = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [locating, setLocating] = useState(false)
+  const [locErr, setLocErr] = useState<string | null>(null)
+
+  const useMyLocation = () => {
+    setLocErr(null)
+    if (!('geolocation' in navigator)) { setLocErr('This browser cannot share a location. Type your town instead.'); return }
+    setLocating(true); setOpen(false)
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lon } = pos.coords
+      let where = ''
+      try { where = (await api(`/geocode/reverse?lat=${lat}&lon=${lon}`)).label } catch { /* the exact point still works without a name */ }
+      const text = where ? `My location (${where})` : 'My location'
+      justPicked.current = true
+      onChange(text)
+      onPick?.({ name: 'My location', context: where, label: text, lat, lon, broad: false, kind: 'me' })
+      setItems([]); setLocating(false)
+    }, err => {
+      setLocating(false)
+      setLocErr(err.code === err.PERMISSION_DENIED ? 'Location permission was denied. Allow it in your browser, or type your town.' : 'Could not get your location. Check that location is on, or type your town.')
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 })
+  }
 
   useEffect(() => {
     if (justPicked.current) { justPicked.current = false; return }
@@ -67,10 +90,12 @@ export default function PlaceInput({ value, onChange, onPick, placeholder, label
       {label && <label className="label" htmlFor={inputId}>{label}</label>}
       <div className="relative">
         <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/35" aria-hidden />
-        <input ref={inputRef} id={inputId} className={`input !pl-10 ${className}`} value={value} placeholder={placeholder} required={required} autoComplete="off" aria-label={label ? undefined : ariaLabel}
+        <input ref={inputRef} id={inputId} className={`input !pl-10 ${locate ? '!pr-11' : ''} ${className}`} value={value} placeholder={placeholder} required={required} autoComplete="off" aria-label={label ? undefined : ariaLabel}
           role="combobox" aria-expanded={open} aria-controls={listId} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${inputId}-o${active}` : undefined}
-          onChange={e => onChange(e.target.value)} onKeyDown={onKey} onFocus={() => items.length && setOpen(true)} onBlur={() => setOpen(false)} />
-        {loading && <span className="pointer-events-none absolute right-3.5 top-1/2 -mt-2 h-4 w-4 animate-spin rounded-full border-2 border-ink/15 border-t-coral" aria-hidden />}
+          onChange={e => { setLocErr(null); onChange(e.target.value) }} onKeyDown={onKey} onFocus={() => items.length && setOpen(true)} onBlur={() => setOpen(false)} />
+        {(loading || locating) && <span className={`pointer-events-none absolute top-1/2 -mt-2 h-4 w-4 animate-spin rounded-full border-2 border-ink/15 border-t-coral ${locate ? 'right-12' : 'right-3.5'}`} aria-hidden />}
+        {locate && <button type="button" onClick={useMyLocation} disabled={locating} aria-label="Use my location" title="Use my location"
+          className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lagoon-700 transition hover:bg-lagoon-50 disabled:opacity-50"><LocateFixed className="h-[18px] w-[18px]" /></button>}
       </div>
       {open && (
         <ul id={listId} role="listbox" className="absolute left-0 right-0 top-full z-30 mt-1.5 max-h-72 animate-pop overflow-auto rounded-2xl border border-ink/10 bg-white py-1 shadow-lift">
@@ -86,6 +111,7 @@ export default function PlaceInput({ value, onChange, onPick, placeholder, label
           <li className="px-3 py-1 text-[10px] text-ink/40" aria-hidden>{source}</li>
         </ul>
       )}
+      {locErr && <p role="alert" className="mt-1 text-xs text-rose-700">{locErr}</p>}
       {broadPick && !open && <p className="mt-1 text-xs text-amber-700">{broadPick.name} is a large region. For the best plan, pick a specific city or town.</p>}
     </div>
   )

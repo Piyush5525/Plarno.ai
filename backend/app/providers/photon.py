@@ -94,12 +94,13 @@ def search(q: str, limit: int = 8) -> list[dict]:
     hit = _cache.get(key)
     if hit and time.time() - hit[0] < 600:
         return hit[1]
-    if config.OFFLINE or not key:
+    if config.OFFLINE or not key or base.breaker_open("photon"):
         return []
     try:
         base.throttle("photon", 0.1)
-        d = base.http_json("GET", config.PHOTON_URL, retries=0, timeout=5, headers=UA, params={"q": q.strip(), "limit": max(limit * 2, 10), "lang": "en"})
+        d = base.http_json("GET", config.PHOTON_URL, retries=0, timeout=4, headers=UA, params={"q": q.strip(), "limit": max(limit * 2, 10), "lang": "en"})
     except Exception:  # noqa: BLE001
+        base.trip_breaker("photon", 180)  # the public server is down or slow: skip it for a few minutes so typing stays fast
         return []
     seen, out = set(), []
     for f in d.get("features", []) if isinstance(d, dict) else []:
@@ -116,6 +117,68 @@ def search(q: str, limit: int = 8) -> list[dict]:
     return out
 
 
+def reverse(lat: float, lon: float) -> dict | None:
+    """What is at this point: {name (the town/locality), display, country, country_code}. Used for "my location" and for places picked by coordinates."""
+    if config.OFFLINE or base.breaker_open("photon"):
+        return None
+    try:
+        base.throttle("photon", 0.1)
+        d = base.http_json("GET", config.PHOTON_URL.rstrip("/").rsplit("/api", 1)[0] + "/reverse", retries=0, timeout=4, headers=UA, params={"lat": lat, "lon": lon, "lang": "en"})
+        p = d["features"][0]["properties"]
+    except Exception:  # noqa: BLE001
+        return None
+    town = p.get("city") or p.get("locality") or p.get("district") or p.get("county") or p.get("name") or p.get("state")
+    if not town:
+        return None
+    parts = list(dict.fromkeys(x for x in (p.get("name") if p.get("osm_key") != "highway" else None, p.get("district") if p.get("district") != town else None, town, p.get("state"), p.get("country")) if x))
+    return {"name": town, "display": ", ".join(parts), "country": p.get("country"), "country_code": (p.get("countrycode") or "").upper()}
+
+
+_SPOT_KINDS = {"university": "college", "college": "college", "railway station": "station", "train station": "station", "airport": "airport"}
+_SPOT_NOISE = ("hostel", "library", "gate", "office", "department", "canteen", "mess", "ground", "parking", "atm", "block", "building", "bus stop", "hospital", "subway")
+_spots_cache: dict[str, tuple[float, list]] = {}
+
+
+def spots(q: str, limit: int = 8) -> list[dict]:
+    """Backup search for colleges, stations and airports (Mapbox Search Box), used when the OpenStreetMap search is unavailable or finds nothing.
+    Mapbox lists every shop and hostel around a campus, so only the institution itself is kept. Same row shape as search()."""
+    key = fold(q)
+    hit = _spots_cache.get(key)
+    if hit and time.time() - hit[0] < 600:
+        return hit[1]
+    if config.OFFLINE or not config.MAPBOX_TOKEN or not key:
+        return []
+    try:
+        base.throttle("mapbox-search", 0.05)
+        d = base.http_json("GET", "https://api.mapbox.com/search/searchbox/v1/forward", retries=0, timeout=6,
+                           params={"q": q.strip(), "access_token": config.MAPBOX_TOKEN, "language": "en", "limit": 10, "types": "poi"})
+    except Exception:  # noqa: BLE001
+        return []
+    seen, out = set(), []
+    for f in d.get("features", []) if isinstance(d, dict) else []:
+        try:
+            p, c = f["properties"], f["geometry"]["coordinates"]
+            name, cats, ctx = p["name"].strip(), [x.lower() for x in p.get("poi_category") or []], p.get("context") or {}
+            kind = next((v for k, v in _SPOT_KINDS.items() if k in cats), None)
+            low = name.lower()
+            if not kind or any(w in low.split() or w in cats for w in _SPOT_NOISE) or "university building" in cats or not covers(name + " " + (p.get("place_formatted") or ""), q):
+                continue
+            area, region, country = (ctx.get("place") or {}).get("name"), (ctx.get("region") or {}).get("name"), ctx.get("country") or {}
+            parts = [x for x in dict.fromkeys(x for x in (area, region, country.get("name")) if x) if fold(x) != fold(name)]
+            k = (fold(name), fold(area or ""))
+            if k in seen:
+                continue
+            seen.add(k)
+            out.append({"name": name, "context": ", ".join(parts), "label": ", ".join([name, *parts]), "lat": float(c[1]), "lon": float(c[0]), "broad": False, "kind": kind,
+                        "_src": "Mapbox Search", "_group": "poi", "_state": fold(region or ""), "_area": area or "", "_cc": (country.get("country_code") or "").upper(), "_country": country.get("name") or ""})
+        except (KeyError, TypeError, ValueError, IndexError, AttributeError):
+            continue
+    out = out[:limit]
+    if out:
+        _spots_cache[key] = (time.time(), out)
+    return out
+
+
 def resolve(query: str) -> dict | None:
     """Best match for a typed or picked place (town or specific spot) in the shape the planner expects.
     For a specific spot (a college, a station) the coordinates are the spot's own, but the planning name is the town around it,
@@ -126,6 +189,8 @@ def resolve(query: str) -> dict | None:
     rows = search(query, 8)
     if "," in query:  # a long "name, town, state, country" string can confuse the search: also try just the name
         rows = rows + [r for r in search(query.split(",")[0], 8) if r not in rows]
+    if not rows:
+        rows = spots(query.split(",")[0], 8)
     for s in rows:
         hay = fold(s["name"] + " " + s["context"])
         if not all(w in hay for w in want):
@@ -135,5 +200,5 @@ def resolve(query: str) -> dict | None:
         display = s["label"]
         return {"broad": s["broad"], "name": town, "display": display, "lat": s["lat"], "lon": s["lon"], "country": s["_country"] or None, "country_code": s["_cc"],
                 "kind": s["kind"] or "place", "spot": s["name"] if poi else None,
-                "provenance": base.prov(SOURCE, "live", None, "OpenStreetMap data via Photon (ODbL)", 0.8)}
+                "provenance": base.prov(SOURCE if s["_src"] == SOURCE_SHORT else "Mapbox Search", "live", None, "OpenStreetMap data via Photon (ODbL)" if s["_src"] == SOURCE_SHORT else "Mapbox place search", 0.8)}
     return None

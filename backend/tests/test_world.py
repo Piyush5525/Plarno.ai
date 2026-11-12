@@ -338,7 +338,7 @@ def test_route_options_endpoint_and_choosing_an_option(client):
     assert r.status_code == 200, r.text
     d = r.json()
     assert d["origin"]["name"] == "Kishangarh" and d["destination"]["name"] == "Paris" and len(d["options"]) == 2
-    assert all("fits_budget" in o for o in d["options"]) and d["allowance_round_trip_inr"] == 180000
+    assert all("fits_budget" in o for o in d["options"]) and d["budget_inr"] == 400000 and d["budget_basis"] == "one_way"  # the whole amount typed is the travel budget
     assert client.get("/api/routes/options", params={"origin": "Kishangarh", "destination": "Atlantisland", "date": "2027-01-10"}).status_code == 404
     assert client.get("/api/routes/options", params={"origin": "Kishangarh", "destination": "Paris", "date": "2020-01-01"}).status_code == 422
     assert client.get("/api/routes/options", params={"origin": "Kishangarh", "destination": "Paris", "date": "nope"}).status_code == 422

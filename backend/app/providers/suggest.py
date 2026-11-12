@@ -90,9 +90,8 @@ def suggest(q: str, limit: int = 8) -> dict:
         words = photon.fold(q).split()
         if not p_rows and len(words) > 1:  # "mit manipal": nothing for the whole phrase, so look up its most distinctive word
             p_rows = photon.search(max(words, key=len), limit)
-        words = photon.fold(q).split()
-        if not p_rows and len(words) > 1:  # "mit manipal": nothing for the whole phrase, so look up its most distinctive word
-            p_rows = photon.search(max(words, key=len), limit)
+        if not p_rows:  # OpenStreetMap search down or empty: colleges, stations and airports from Mapbox's place search instead
+            p_rows = photon.spots(q, limit) or (photon.spots(max(words, key=len), limit) if len(words) > 1 else [])
         if p_rows or m_rows:
             out, srcs = merge(q, p_rows, m_rows, limit)
             if out:
