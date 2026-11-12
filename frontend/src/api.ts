@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Json = any
+/** Where the backend lives. Empty in development (Vite proxies /api to :8000). On Vercel set VITE_API_URL to the hosted backend, e.g. https://plarno-api.onrender.com */
+const API_BASE = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').trim().replace(/\/+$/, '')
 let token: string | null = null
 try { token = localStorage.getItem('tp_token') } catch { /* storage blocked */ }
 export const getToken = () => token
@@ -16,7 +18,7 @@ export async function api<T = Json>(path: string, opts: { method?: string; body?
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), 30000)
   try {
-    const r = await fetch('/api' + path, {
+    const r = await fetch(API_BASE + '/api' + path, {
       method: opts.method ?? (opts.body ? 'POST' : 'GET'),
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
       body: opts.body ? JSON.stringify(opts.body) : undefined,
