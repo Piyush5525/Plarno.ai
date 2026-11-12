@@ -4,6 +4,7 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import { MotionConfig } from 'framer-motion'
 import './index.css'
 import { AppProvider } from './store'
+import { wakeBackend } from './api'
 import Layout, { Protected } from './components/Layout'
 import { Empty } from './components/ui'
 const Landing = lazy(() => import('./pages/Landing'))
@@ -27,6 +28,8 @@ class Boundary extends React.Component<{ children: React.ReactNode }, { err: Err
 
 const PageLoading = () => <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-16 text-sm text-ink/60" role="status"><span className="h-4 w-4 animate-spin rounded-full border-2 border-ink/20 border-t-coral" />Loading…</div>
 const NotFound = () => <div className="mx-auto max-w-xl px-4 py-20"><h1 className="sr-only">Page not found</h1><Empty title="This page took a wrong turn">The address does not match anything on Plarno.ai.<div className="mt-4 flex justify-center gap-2"><Link to="/" className="btn btn-primary">Back home</Link><Link to="/discover" className="btn btn-ghost">Explore a city</Link></div></Empty></div>
+
+wakeBackend()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <Boundary>

@@ -10,13 +10,18 @@ export function setToken(t: string | null) {
   try { t ? localStorage.setItem('tp_token', t) : localStorage.removeItem('tp_token') } catch { /* ignore */ }
 }
 
+/** Free hosts put an idle backend to sleep and take up to a minute to wake it. Pinging it as soon as the site opens means it is awake by the time you press a button. */
+export function wakeBackend() {
+  if (API_BASE) fetch(API_BASE + '/api/health').catch(() => { /* it will answer when it is up */ })
+}
+
 export class ApiError extends Error {
   constructor(public status: number, msg: string) { super(msg) }
 }
 
 export async function api<T = Json>(path: string, opts: { method?: string; body?: unknown } = {}): Promise<T> {
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 30000)
+  const timer = setTimeout(() => ctrl.abort(), 90000)  // a new city takes ~30 s, and a sleeping free host needs up to ~60 s to wake first
   try {
     const r = await fetch(API_BASE + '/api' + path, {
       method: opts.method ?? (opts.body ? 'POST' : 'GET'),

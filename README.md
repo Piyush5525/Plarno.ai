@@ -24,7 +24,7 @@
 </p>
 
 ## Contents
-[What it does](#what-it-does) · [Screens](#screens) · [Meet TRIP](#meet-trip) · [How it works](#how-it-works) · [The live guide](#the-live-guide) · [Finding any place, even your college](#finding-any-place-even-your-college) · [Safe by design](#safe-by-design) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Project structure](#project-structure) · [Getting started](#getting-started) · [API](#api-overview) · [Testing](#testing) · [Demo script](#demo-script) · [Honest limits](#honest-limits) · [Docs](#docs)
+[What it does](#what-it-does) · [Screens](#screens) · [Meet TRIP](#meet-trip) · [How it works](#how-it-works) · [The live guide](#the-live-guide) · [Finding any place, even your college](#finding-any-place-even-your-college) · [Safe by design](#safe-by-design) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Project structure](#project-structure) · [Getting started](#getting-started) · [Deploy](#deploy) · [API](#api-overview) · [Testing](#testing) · [Demo script](#demo-script) · [Honest limits](#honest-limits) · [Docs](#docs)
 
 ---
 
@@ -389,6 +389,21 @@ Interactive docs are served by FastAPI at `http://localhost:8000/docs`.
 | `POST /api/trips/{id}/recovery/propose` | Disruption handling: what a delay affects and the options |
 | `GET /api/providers/health` | Which providers are configured and what their last call did (never returns keys) |
 
+## Deploy
+
+The frontend is a static site (Vercel); the backend is a long-running FastAPI app (Railway). They talk over HTTPS, so each is configured with the other's address.
+
+| Where | Setting | Value |
+|---|---|---|
+| **Vercel** | Root Directory | `frontend` |
+| | Framework preset | Vite · build `npm run build` · output `dist` |
+| | Environment variable | `VITE_API_URL` = your Railway address, no trailing slash |
+| **Railway** | Root Directory | `backend` |
+| | Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --forwarded-allow-ips "*"` (also in `backend/railway.json`) |
+| | Volume | mount at `/data`, so accounts and trips survive restarts |
+| | Variables | `PLARNO_DB=/data/plarno.db` · `PLARNO_SECRET` (a long random string, **keep it fixed** or everyone is signed out on each restart) · `PLARNO_CORS` = your Vercel address · the API keys from [`.env.example`](.env.example) |
+
+Order: deploy Railway first and copy its address → deploy Vercel with `VITE_API_URL` → set `PLARNO_CORS` on Railway to the Vercel address. Keep Railway at **one replica** (SQLite). A `render.yaml` blueprint is included for Render's free tier, which sleeps when idle and loses its database on restart.
 ## Testing
 
 ```bash

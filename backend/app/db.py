@@ -1,5 +1,6 @@
 """SQLite persistence for development. Production schema (Postgres + PostGIS + pgvector): see docs/schema.sql."""
 import json
+import os
 import sqlite3
 import threading
 
@@ -43,6 +44,9 @@ def conn() -> sqlite3.Connection:
     global _conn
     with _lock:
         if _conn is None:
+            parent = os.path.dirname(config.DB_PATH)
+            if parent:
+                os.makedirs(parent, exist_ok=True)  # e.g. a freshly mounted volume at /data
             _conn = sqlite3.connect(config.DB_PATH, check_same_thread=False)
             _conn.row_factory = sqlite3.Row
             _conn.execute("PRAGMA foreign_keys=ON")

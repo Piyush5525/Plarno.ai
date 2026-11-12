@@ -271,7 +271,9 @@ export default function TripBot({ state, size = 120, interactive = false, trick,
     <div ref={wrap} style={{ width: size, height: size, touchAction: interactive ? 'pan-y' : undefined }} className={`relative select-none ${interactive ? 'cursor-grab active:cursor-grabbing' : ''}`}
       role={interactive ? 'button' : 'img'} tabIndex={interactive ? 0 : undefined}
       aria-label={interactive ? 'TRIP the travel bot. Press to see a trick, drag to turn it around.' : `TRIP, your travel assistant, is ${sleeping ? 'napping' : state}`} {...handlers}>
-      <Canvas camera={{ position: [0, 0.15, 6.2], fov: 36 }} dpr={[1, 1.75]} gl={{ alpha: true, antialias: true }} style={{ pointerEvents: 'none' }}>
+      {/* offsetSize: measure the real layout size, not the transformed one. Otherwise a parent that is mid scale-in animation makes the canvas
+          lock in at (say) 70% of its size and the bot sits off-centre. */}
+      <Canvas camera={{ position: [0, 0.15, 6.2], fov: 36 }} dpr={[1, 1.75]} gl={{ alpha: true, antialias: true }} style={{ pointerEvents: 'none' }} resize={{ offsetSize: true, scroll: false }}>
         <ambientLight intensity={1.15} />
         <directionalLight position={[3, 5, 5]} intensity={2.2} color="#fff4e0" />
         <pointLight position={[-4, 1, 3]} intensity={18} color="#7dd3fc" />
