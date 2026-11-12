@@ -8,6 +8,12 @@
 </p>
 
 <p align="center">
+  <a href="https://plarno-ai.vercel.app"><img alt="Open the live app: plarno-ai.vercel.app" src="https://img.shields.io/badge/%F0%9F%9A%80%20LIVE%20APP-plarno--ai.vercel.app-f4553f?style=for-the-badge"></a>
+  &nbsp;
+  <a href="#getting-started"><img alt="Run it locally" src="https://img.shields.io/badge/RUN%20IT-locally-0b1f33?style=for-the-badge"></a>
+</p>
+
+<p align="center">
   <img alt="React" src="https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white">
   <img alt="Tailwind" src="https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white">
@@ -24,7 +30,24 @@
 </p>
 
 ## Contents
-[What it does](#what-it-does) · [Screens](#screens) · [Meet TRIP](#meet-trip) · [How it works](#how-it-works) · [The live guide](#the-live-guide) · [Finding any place, even your college](#finding-any-place-even-your-college) · [Safe by design](#safe-by-design) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Project structure](#project-structure) · [Getting started](#getting-started) · [Deploy](#deploy) · [API](#api-overview) · [Testing](#testing) · [Demo script](#demo-script) · [Honest limits](#honest-limits) · [Docs](#docs)
+[Try it live](#try-it-live) · [What it does](#what-it-does) · [Screens](#screens) · [Meet TRIP](#meet-trip) · [How it works](#how-it-works) · [The live guide](#the-live-guide) · [Finding any place, even your college](#finding-any-place-even-your-college) · [Routes you can actually take](#routes-you-can-actually-take) · [Essentials and SOS](#essentials-and-sos) · [Safe by design](#safe-by-design) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Project structure](#project-structure) · [Getting started](#getting-started) · [Deploy](#deploy) · [API](#api-overview) · [Testing](#testing) · [Demo script](#demo-script) · [Honest limits](#honest-limits) · [Docs](#docs)
+
+---
+
+## Try it live
+
+<p align="center">
+  <a href="https://plarno-ai.vercel.app"><b>https://plarno-ai.vercel.app</b></a>
+</p>
+
+The running app: the React frontend on **Vercel** talking to the FastAPI backend on **Railway**. Nothing to install.
+
+1. Open it and press **Plan my trip**, or sign up first (any email and a password of 8+ characters; use a throwaway one).
+2. Ask for a city anywhere in the world, for example *“Plan 4 days in Lisbon for two, budget ₹220000”*. A city nobody has asked for before takes up to about 30 seconds the first time because it makes live searches; repeat requests are quick.
+3. Open **Ways to travel**, type a college or a town (try `manipal` or `iit bombay`), set a budget and compare routes with a map. The target button in the From box starts from **your own location**.
+4. In a trip, open the **Live guide** and **Safety** tabs for live weather, essentials nearby and the SOS button.
+
+> **Good to know.** This is a prototype on small hosting tiers, so it can be slow at times, and the daily limit on live place searches can run out; when it does, the app says so instead of showing made-up data. Accounts live on the demo server, so do not reuse a real password. **The SOS button on this public demo delivers to the project owner's Telegram chat, not yours, so please press it only to test.**
 
 ---
 
@@ -218,6 +241,94 @@ flowchart TD
     class X bad;
 ```
 
+## Routes you can actually take
+
+A route that cannot exist is worse than no route. Plarno builds trains **between real major stations** (about 100 across India), with the ride to and from them as separate legs, instead of inventing a train from a village to a hill town.
+
+<p align="center">
+  <img src="docs/images/route-detail.jpg" alt="A route from a college in Jaipur to Mandi: cab to Jaipur Junction, train to Una Himachal, bus to Mandi, with fares by class, a map and booking links" width="88%"><br>
+  <sub><b>One route, opened.</b> Cab to the station, train between two real stations, bus for the last stretch. Fares by class, a map, and links to check timings and book.</sub>
+</p>
+
+<details>
+<summary><b>See the same route on a phone</b></summary>
+<p align="center"><img src="docs/images/route-mobile.jpg" alt="The same route on a phone, legs stacked in one column with the map below" width="300"></p>
+</details>
+
+```mermaid
+flowchart TD
+    S(["From → To<br/>town · college · station · my location"]) --> X["Exact coordinates<br/>a picked place or your GPS point"]
+    X --> CAB["Cab door to door<br/>when it is under about 1,000 km"]
+    X --> BUS["Bus<br/>direct, or via the nearest city bus stand"]
+    X --> TR{"Major station near<br/>both ends?"}
+    TR -->|"yes"| TRAIN["Ride to the station<br/>train between two real stations<br/>ride onward"]
+    TR -->|"no"| NO["No train offered,<br/>and the page says why"]
+    X --> FL{"More than 250 km apart?"}
+    FL -->|"yes"| FLIGHT["Nearest airports<br/>live Google Flights fares<br/>plus the transfers"]
+    CAB --> RANK
+    BUS --> RANK
+    TRAIN --> RANK
+    FLIGHT --> RANK
+    RANK["Rank and label<br/>cheapest · fastest · most comfortable · best value"] --> BUD{"Within your budget?<br/>one way or round trip,<br/>all travellers together"}
+    BUD --> CARD["Route card<br/>legs · map · fares by class<br/>links to check timings and book"]
+
+    classDef live fill:#e8f8f5,stroke:#0fa596,color:#0a6f66;
+    classDef bad fill:#fff1ed,stroke:#f4553f,color:#b83322;
+    classDef core fill:#0b1f33,stroke:#0b1f33,color:#fff;
+    class FLIGHT,TRAIN live;
+    class NO bad;
+    class RANK,CARD core;
+```
+
+- **An honest budget.** The number you type is for *this journey*, all travellers together, and you pick **One way** or **Round trip**. A ₹5,000 budget against a ₹1,060 route says “Fits your ₹5,000 budget, with ₹3,940 left”.
+- **Every route is a list of legs.** Each leg has time, distance and fare (train and bus by class) and links: driving directions, trains and timings, IRCTC, redBus, Google Maps or Google Flights.
+- **Start from where you are.** The target button in the From box asks the browser for your location only when you press it, then routes from that exact point.
+- **Estimates say so.** Flight fares are live. Train, bus and cab figures are worked out from distance and are labelled `estimated`; use the links for real departures before you book.
+
+## Essentials and SOS
+
+Arriving somewhere new, you do not know where the pharmacy is. And if something goes wrong, you want one button.
+
+<p align="center">
+  <img src="docs/images/nearby.jpg" alt="Essentials nearby: pharmacies with distance, address, a Call button and directions" width="88%"><br>
+  <sub><b>Essentials nearby.</b> Pharmacies, hospitals, groceries, ATMs and police around your stay, or around you. Real listings with distance, a Call button when a number is listed, and directions.</sub>
+</p>
+
+<p align="center">
+  <img src="docs/images/sos.jpg" alt="The SOS dialog: tap-to-call local emergency number, the saved emergency contact, and a button to send an alert with your live location" width="340"><br>
+  <sub><b>SOS.</b> The local emergency number is one tap away. Nothing is sent until you press “Send alert”.</sub>
+</p>
+
+Save an emergency contact (name and number) in **Preferences**. The red **SOS** button, in the header on every page, then does this:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor You
+    participant App as Web app
+    participant API as FastAPI
+    participant TG as Telegram bot
+    actor Contact as Your emergency contact
+    You->>App: Press SOS, then "Send alert"
+    App->>App: Ask the browser for your location (only now)
+    App->>API: POST /api/sos with the coordinates
+    API->>TG: Alert: your name, contact on file, place name, map link
+    API->>TG: A live location pin (15 minutes)
+    TG-->>Contact: The message and the moving pin
+    loop about every 15 seconds while the page stays open
+        App->>API: POST /api/sos/update
+        API->>TG: Move the pin
+    end
+    You->>App: "I am safe, stop sharing"
+    App->>API: POST /api/sos/stop
+    API->>TG: Stop sharing and say you are safe
+```
+
+- **Consent first.** Your location is read and sent only when you press the button. There is also a **test alert** that is clearly marked as a test.
+- **The bot token stays on the server.** It is never sent to the browser or put in a log, and error messages are scrubbed so it cannot leak.
+- **Set up your own:** create a bot with [@BotFather](https://t.me/BotFather), send it a message, and put `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `.env`. Without them the dialog still shows the emergency numbers and says alerts are not set up.
+- **Limits:** a browser cannot share location in the background, so the pin updates only while the page is open. Plarno.ai is not an emergency service: always call the local emergency number when you can.
+
 ## Safe by design
 
 **The approval gate.** Agents cannot spend money or change a booking on their own.
@@ -273,11 +384,12 @@ flowchart TB
     subgraph EXT["Live data"]
         direction LR
         SERP["SerpApi<br/>Maps · Hotels · Flights"]
-        MB["Mapbox<br/>tiles · directions"]
+        MB["Mapbox<br/>tiles · directions · places"]
         OW["OpenWeather"]
         AQ["AQICN"]
         PH["Photon / OSM<br/>place search"]
         GM["Gemini<br/>language only"]
+        TG["Telegram bot<br/>SOS alerts"]
     end
     BROWSER -->|"HTTPS /api"| SERVER
     SERVER -->|"cached, rate-limited calls"| EXT
@@ -287,7 +399,7 @@ flowchart TB
     classDef c fill:#e8f8f5,stroke:#0fa596,color:#0a6f66;
     class PAGES,BOT,MAPUI,VOICE a;
     class ROUTES,ORCH,SVC,PROV,DB b;
-    class SERP,MB,OW,AQ,PH,GM c;
+    class SERP,MB,OW,AQ,PH,GM,TG c;
 ```
 
 - **Deterministic core, language on top.** `agents/nlu.py` is a rules-based parser; Gemini only fills fields the rules missed (validated against a whitelist), phrases the live briefing from supplied facts, and answers grounded questions. It never invents a price, a place or an opening time.
@@ -304,6 +416,7 @@ flowchart TB
 | Storage | SQLite for development; production schema for Postgres + PostGIS + pgvector in [`docs/schema.sql`](docs/schema.sql) |
 | Data | SerpApi (Google Maps, Hotels, Flights), Mapbox, OpenWeather, AQICN, Photon / OpenStreetMap |
 | Language | Google Gemini (understanding, briefing, grounded Q&A) |
+| Alerts | Telegram Bot API (SOS alerts with a live location pin) |
 | Quality | pytest (97), Playwright (47 end-to-end checks, plus a click-everything accessibility crawler) |
 
 ## Project structure
@@ -315,13 +428,13 @@ Plarno.ai/
 │   │   ├── main.py              REST API (auth, trips, guide, discovery, routes, admin)
 │   │   ├── agents/              orchestrator, 13 specialist agents, NLU, tools, shared TripContext
 │   │   ├── services/            itinerary, routes, budget, guide, world catalogue, safety, matching, recovery
-│   │   ├── providers/           SerpApi, Mapbox, Photon, geocoding, Gemini, caching, rate limits
-│   │   └── data/                airports, demo dataset (provenance-tagged)
+│   │   ├── providers/           SerpApi, Mapbox, Photon, geocoding, Gemini, Telegram, nearby places, caching, rate limits
+│   │   └── data/                airports, railway stations, demo dataset (provenance-tagged)
 │   └── tests/                   97 tests with real provider response shapes injected
 ├── frontend/
 │   └── src/
 │       ├── pages/               Landing, Workspace, Discover, Transport, Trips, Profile, Auth, Admin
-│       └── components/          TripBot (3D), TripAssistant (chat + voice), Guide, Live, ui kit, maps
+│       └── components/          TripBot (3D), TripAssistant (chat + voice), Guide, Live, Nearby, Sos, route cards, ui kit, maps
 ├── e2e/                         Playwright journey test, click-everything crawler
 ├── docs/                        INTEGRATIONS.md, STATUS.md, schema.sql, images/
 ├── INTEGRATION_STATUS.md        what is verified against real providers, and what is not
@@ -386,7 +499,10 @@ Interactive docs are served by FastAPI at `http://localhost:8000/docs`.
 | `GET /api/live?lat=&lon=` | Live weather, air quality, forecast and local time for any point |
 | `POST /api/trips/{id}/itinerary/rebuild` | Add, remove, reorder stops, change hotel or pace; only dependents recompute |
 | `GET /api/world/discover` | Real attractions, restaurants or hotels for any city |
-| `GET /api/routes/options` | Door-to-door travel options between any two places |
+| `GET /api/routes/options` | Door-to-door routes between any two places: cab, bus, train between real stations, live flights. Takes `budget`, `trip=one_way\|round_trip` and optional exact coordinates |
+| `GET /api/geocode/reverse` | Name for a point (powers “Use my location”) |
+| `GET /api/nearby?lat=&lon=&kind=` | Pharmacies, hospitals, groceries, ATMs or police near a point |
+| `POST /api/sos` · `/api/sos/update` · `/api/sos/stop` | Emergency alert with a live location (signed-in, only when pressed) |
 | `GET /api/geocode/suggest` | As-you-type search for towns, colleges, stations and airports |
 | `POST /api/trips/{id}/booking/prepare` · `POST /api/approvals/{id}/decide` | The approval gate |
 | `POST /api/trips/{id}/recovery/propose` | Disruption handling: what a delay affects and the options |
@@ -396,6 +512,8 @@ Interactive docs are served by FastAPI at `http://localhost:8000/docs`.
 
 The frontend is a static site (Vercel); the backend is a long-running FastAPI app (Railway). They talk over HTTPS, so each is configured with the other's address.
 
+This repo's own deployment: frontend **https://plarno-ai.vercel.app**, backend `https://plarnoai-production.up.railway.app` (health check at `/api/health`). Both platforms redeploy automatically on every push to `main`.
+
 | Where | Setting | Value |
 |---|---|---|
 | **Vercel** | Root Directory | `frontend` |
@@ -404,9 +522,10 @@ The frontend is a static site (Vercel); the backend is a long-running FastAPI ap
 | **Railway** | Root Directory | `backend` |
 | | Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --forwarded-allow-ips "*"` (also in `backend/railway.json`) |
 | | Volume | mount at `/data`, so accounts and trips survive restarts |
-| | Variables | `PLARNO_DB=/data/plarno.db` · `PLARNO_SECRET` (a long random string, **keep it fixed** or everyone is signed out on each restart) · `PLARNO_CORS` = your Vercel address · the API keys from [`.env.example`](.env.example) |
+| | Variables | `PLARNO_DB=/data/plarno.db` · `PLARNO_SECRET` (a long random string, **keep it fixed** or everyone is signed out on each restart) · `PLARNO_CORS` = your Vercel address · the API keys and the `TELEGRAM_*` settings from [`.env.example`](.env.example) |
 
 Order: deploy Railway first and copy its address → deploy Vercel with `VITE_API_URL` → set `PLARNO_CORS` on Railway to the Vercel address. Keep Railway at **one replica** (SQLite). A `render.yaml` blueprint is included for Render's free tier, which sleeps when idle and loses its database on restart.
+
 ## Testing
 
 ```bash
@@ -426,19 +545,22 @@ The tests inject real provider response shapes, so they run offline and never sp
 3. **Hotel change:** *“Change my hotel to Old Delhi Haveli Stay”* → routes, meals, safety and budget are recomputed (only the affected agents re-run).
 4. **Disruption:** *“My train is delayed by 4 hours”* → affected stops, alternatives with cost and time deltas, and an approval request before anything changes.
 5. **Ask:** *“What should I pack?”*, *“Explain today's weather and pollution”*, *“Find restaurants around my hotel”*.
-6. **Find your college:** Ways to travel → type `manipal` or `iit bombay` → pick the college → compare options.
+6. **Find your college:** Ways to travel → type `manipal` or `iit bombay` → pick the college → set a budget and compare. Open a route to see the map, fares and booking links, and try the target button for **Use my location**.
 7. **Bookings tab:** review → approve (Delhi demo creates `SIM-` records only).
 8. Click the bot. Drag it. Leave it alone for 30 seconds.
+9. **Essentials and SOS:** open the Live guide → Essentials nearby (pharmacy, hospital, grocery). Save an emergency contact in Preferences, then use the SOS button's **test alert**.
 
 ## Honest limits
 
 This is a prototype, and it says so where it matters.
 
-- **Bus, train and cab prices are estimates** from distance (labelled `estimated`); there is no live railway or bus inventory yet. Flight fares are live.
+- **Train, bus and cab prices and times are estimates** from distance (labelled `estimated`); there is no live railway or bus inventory yet, so each route links out to check real departures. Trains run between real major stations from a built-in list (about 100 in India); outside India only a single, unverified rail estimate is shown. Flight fares are live.
+- **Essentials nearby** come from map listings, which can be out of date, and not every listing has a phone number.
+- **SOS** shares your location only while the page is open (browsers cannot do it in the background), and it is not an emergency service.
 - **Ticket prices** are not provided by the places data source and are shown as unverified.
 - **The Delhi demo** keeps a curated, simulated dataset (neighbourhood scoring, simulated booking flow). Everywhere else uses live data.
 - **The airport table** uses city-centre coordinates, so the distance shown is to the airport's city, not the terminal.
-- **Place search** uses the public Photon server (no uptime guarantee). If it is down, search falls back to town-only results.
+- **Place search** uses the public Photon server (no uptime guarantee). If it is down, colleges, stations and airports still come from Mapbox's place search and towns from Mapbox.
 - **Voice** relies on the browser's speech APIs (Chrome or Edge recommended) and was not exercised in the automated tests.
 - SQLite and an in-process cache are used for development; see `docs/schema.sql` for the production design.
 
