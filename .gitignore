@@ -1,0 +1,15 @@
+.env
+*.db
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+*.log
+.venv/
+venv/
+.DS_Store
+.vscode/
+.idea/
+# test-run screenshots and one-off scratch scripts (the README images live in docs/images)
+e2e/shots/
+backend/patch_*.py

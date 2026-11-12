@@ -1,0 +1,920 @@
+{
+ "delhi": {
+  "iata": "DEL",
+  "lat": 28.6139,
+  "lon": 77.209,
+  "place": "Delhi, India"
+ },
+ "mumbai": {
+  "iata": "BOM",
+  "lat": 19.0778,
+  "lon": 72.8787,
+  "place": "Mumbai, Maharashtra, India"
+ },
+ "bengaluru": {
+  "iata": "BLR",
+  "lat": 12.9791,
+  "lon": 77.5913,
+  "place": "Bengaluru, Karnataka, India"
+ },
+ "kolkata": {
+  "iata": "CCU",
+  "lat": 22.5568,
+  "lon": 88.3547,
+  "place": "Kolkata, West Bengal, India"
+ },
+ "chennai": {
+  "iata": "MAA",
+  "lat": 13.0505,
+  "lon": 80.2427,
+  "place": "Chennai, Tamil Nadu, India"
+ },
+ "hyderabad": {
+  "iata": "HYD",
+  "lat": 17.3614,
+  "lon": 78.4745,
+  "place": "Hyderabad, Telangana, India"
+ },
+ "pune": {
+  "iata": "PNQ",
+  "lat": 18.5157,
+  "lon": 73.8563,
+  "place": "Pune, Maharashtra, India"
+ },
+ "ahmedabad": {
+  "iata": "AMD",
+  "lat": 23.0246,
+  "lon": 72.5896,
+  "place": "Ahmedabad, Gujarat, India"
+ },
+ "jaipur": {
+  "iata": "JAI",
+  "lat": 26.9203,
+  "lon": 75.8125,
+  "place": "Jaipur, Rajasthan, India"
+ },
+ "goa": {
+  "iata": "GOI",
+  "lat": 15.3256,
+  "lon": 74.0541,
+  "place": "Goa, India"
+ },
+ "kochi": {
+  "iata": "COK",
+  "lat": 9.9665,
+  "lon": 76.2428,
+  "place": "Kochi, Kerala, India"
+ },
+ "thiruvananthapuram": {
+  "iata": "TRV",
+  "lat": 8.4911,
+  "lon": 76.9493,
+  "place": "Thiruvananthapuram, Kerala, India"
+ },
+ "lucknow": {
+  "iata": "LKO",
+  "lat": 26.8431,
+  "lon": 80.9239,
+  "place": "Lucknow, Uttar Pradesh, India"
+ },
+ "varanasi": {
+  "iata": "VNS",
+  "lat": 25.3367,
+  "lon": 83.007,
+  "place": "Varanasi, Uttar Pradesh, India"
+ },
+ "chandigarh": {
+  "iata": "IXC",
+  "lat": 30.7334,
+  "lon": 76.7797,
+  "place": "Chandigarh, India"
+ },
+ "amritsar": {
+  "iata": "ATQ",
+  "lat": 31.6342,
+  "lon": 74.8739,
+  "place": "Amritsar, Punjab, India"
+ },
+ "srinagar": {
+  "iata": "SXR",
+  "lat": 34.0748,
+  "lon": 74.8213,
+  "place": "Srinagar, Jammu and Kashmir, India"
+ },
+ "leh": {
+  "iata": "IXL",
+  "lat": 34.1637,
+  "lon": 77.585,
+  "place": "Leh, Ladakh, India"
+ },
+ "udaipur": {
+  "iata": "UDR",
+  "lat": 24.5822,
+  "lon": 73.6966,
+  "place": "Udaipur, Rajasthan, India"
+ },
+ "jodhpur": {
+  "iata": "JDH",
+  "lat": 26.2969,
+  "lon": 73.0357,
+  "place": "Jodhpur, Rajasthan, India"
+ },
+ "patna": {
+  "iata": "PAT",
+  "lat": 25.6099,
+  "lon": 85.1378,
+  "place": "Patna, Bihar, India"
+ },
+ "bhubaneswar": {
+  "iata": "BBI",
+  "lat": 20.2604,
+  "lon": 85.8385,
+  "place": "Bhubaneswar, Odisha, India"
+ },
+ "guwahati": {
+  "iata": "GAU",
+  "lat": 26.179,
+  "lon": 91.7515,
+  "place": "Guwahati, Assam, India"
+ },
+ "indore": {
+  "iata": "IDR",
+  "lat": 22.7189,
+  "lon": 75.8592,
+  "place": "Indore, Madhya Pradesh, India"
+ },
+ "nagpur": {
+  "iata": "NAG",
+  "lat": 21.1498,
+  "lon": 79.0821,
+  "place": "Nagpur, Maharashtra, India"
+ },
+ "dehradun": {
+  "iata": "DED",
+  "lat": 30.3207,
+  "lon": 78.041,
+  "place": "Dehradun, Uttarakhand, India"
+ },
+ "kullu": {
+  "iata": "KUU",
+  "lat": 31.9584,
+  "lon": 77.1092,
+  "place": "Kullu, Himachal Pradesh, India"
+ },
+ "london": {
+  "iata": "LHR",
+  "lat": 51.5073,
+  "lon": -0.1276,
+  "place": "London, Greater London, England, United Kingdom"
+ },
+ "paris": {
+  "iata": "CDG",
+  "lat": 48.8535,
+  "lon": 2.3484,
+  "place": "Paris, France"
+ },
+ "new york": {
+  "iata": "JFK",
+  "lat": 40.7127,
+  "lon": -74.006,
+  "place": "New York City, New York, United States"
+ },
+ "los angeles": {
+  "iata": "LAX",
+  "lat": 34.0481,
+  "lon": -118.2542,
+  "place": "Los Angeles, California, United States"
+ },
+ "san francisco": {
+  "iata": "SFO",
+  "lat": 37.7792,
+  "lon": -122.4194,
+  "place": "San Francisco, California, United States"
+ },
+ "chicago": {
+  "iata": "ORD",
+  "lat": 41.882,
+  "lon": -87.6324,
+  "place": "Chicago, Illinois, United States"
+ },
+ "miami": {
+  "iata": "MIA",
+  "lat": 25.7734,
+  "lon": -80.1919,
+  "place": "Miami, Florida, United States"
+ },
+ "washington": {
+  "iata": "IAD",
+  "lat": 38.9025,
+  "lon": -77.0394,
+  "place": "Washington, District of Columbia, United States"
+ },
+ "boston": {
+  "iata": "BOS",
+  "lat": 42.3589,
+  "lon": -71.0568,
+  "place": "Boston, Massachusetts, United States"
+ },
+ "seattle": {
+  "iata": "SEA",
+  "lat": 47.6032,
+  "lon": -122.3303,
+  "place": "Seattle, Washington, United States"
+ },
+ "las vegas": {
+  "iata": "LAS",
+  "lat": 36.1692,
+  "lon": -115.1406,
+  "place": "Las Vegas, Nevada, United States"
+ },
+ "toronto": {
+  "iata": "YYZ",
+  "lat": 43.6479,
+  "lon": -79.3835,
+  "place": "Toronto, Ontario, Canada"
+ },
+ "vancouver": {
+  "iata": "YVR",
+  "lat": 49.261,
+  "lon": -123.115,
+  "place": "Vancouver, British Columbia, Canada"
+ },
+ "mexico city": {
+  "iata": "MEX",
+  "lat": 19.4326,
+  "lon": -99.1332,
+  "place": "Mexico City, Mexico"
+ },
+ "cancun": {
+  "iata": "CUN",
+  "lat": 21.1619,
+  "lon": -86.8518,
+  "place": "Cancún, Quintana Roo, Mexico"
+ },
+ "sao paulo": {
+  "iata": "GRU",
+  "lat": -23.5521,
+  "lon": -46.6472,
+  "place": "São Paulo, São Paulo, Brazil"
+ },
+ "rio de janeiro": {
+  "iata": "GIG",
+  "lat": -22.9095,
+  "lon": -43.2099,
+  "place": "Rio de Janeiro, Rio de Janeiro, Brazil"
+ },
+ "buenos aires": {
+  "iata": "EZE",
+  "lat": -34.6096,
+  "lon": -58.3888,
+  "place": "Buenos Aires, Argentina"
+ },
+ "lima": {
+  "iata": "LIM",
+  "lat": -12.0697,
+  "lon": -77.0354,
+  "place": "Lima, Lima, Peru"
+ },
+ "bogota": {
+  "iata": "BOG",
+  "lat": 4.6534,
+  "lon": -74.0836,
+  "place": "Bogotá, Colombia"
+ },
+ "santiago": {
+  "iata": "SCL",
+  "lat": -33.4406,
+  "lon": -70.6494,
+  "place": "Santiago, Santiago Metropolitan Region, Chile"
+ },
+ "dubai": {
+  "iata": "DXB",
+  "lat": 25.2581,
+  "lon": 55.2976,
+  "place": "Dubai, Dubai, United Arab Emirates"
+ },
+ "abu dhabi": {
+  "iata": "AUH",
+  "lat": 24.4535,
+  "lon": 54.3774,
+  "place": "Abu Dhabi, Abu Dhabi, United Arab Emirates"
+ },
+ "doha": {
+  "iata": "DOH",
+  "lat": 25.2856,
+  "lon": 51.5264,
+  "place": "Doha, Qatar"
+ },
+ "istanbul": {
+  "iata": "IST",
+  "lat": 41.009,
+  "lon": 28.9661,
+  "place": "Istanbul, Türkiye"
+ },
+ "cairo": {
+  "iata": "CAI",
+  "lat": 30.0476,
+  "lon": 31.2411,
+  "place": "Cairo, Cairo, Egypt"
+ },
+ "marrakech": {
+  "iata": "RAK",
+  "lat": 31.6269,
+  "lon": -7.9881,
+  "place": "Marrakech, Marrakesh-Safi, Morocco"
+ },
+ "cape town": {
+  "iata": "CPT",
+  "lat": -33.9225,
+  "lon": 18.4203,
+  "place": "Cape Town, Western Cape, South Africa"
+ },
+ "johannesburg": {
+  "iata": "JNB",
+  "lat": -26.2047,
+  "lon": 28.0421,
+  "place": "Johannesburg, Gauteng, South Africa"
+ },
+ "nairobi": {
+  "iata": "NBO",
+  "lat": -1.289,
+  "lon": 36.8173,
+  "place": "Nairobi, Kenya"
+ },
+ "addis ababa": {
+  "iata": "ADD",
+  "lat": 9.0358,
+  "lon": 38.7524,
+  "place": "Addis Ababa, Ethiopia"
+ },
+ "lagos": {
+  "iata": "LOS",
+  "lat": 6.4539,
+  "lon": 3.3897,
+  "place": "Lagos, Lagos, Nigeria"
+ },
+ "tel aviv": {
+  "iata": "TLV",
+  "lat": 32.0853,
+  "lon": 34.7819,
+  "place": "Tel Aviv, Tel Aviv District, Israel"
+ },
+ "amman": {
+  "iata": "AMM",
+  "lat": 31.9522,
+  "lon": 35.9324,
+  "place": "Amman, Amman, Jordan"
+ },
+ "riyadh": {
+  "iata": "RUH",
+  "lat": 24.6333,
+  "lon": 46.7167,
+  "place": "Riyadh, Riyadh, Saudi Arabia"
+ },
+ "singapore": {
+  "iata": "SIN",
+  "lat": 1.3516,
+  "lon": 103.8081,
+  "place": "Singapore"
+ },
+ "kuala lumpur": {
+  "iata": "KUL",
+  "lat": 3.1517,
+  "lon": 101.6942,
+  "place": "Kuala Lumpur, Malaysia"
+ },
+ "bangkok": {
+  "iata": "BKK",
+  "lat": 13.7525,
+  "lon": 100.4935,
+  "place": "Bangkok, Thailand"
+ },
+ "phuket": {
+  "iata": "HKT",
+  "lat": 7.8835,
+  "lon": 98.3873,
+  "place": "Phuket, Phuket, Thailand"
+ },
+ "bali": {
+  "iata": "DPS",
+  "lat": -8.6525,
+  "lon": 115.2191,
+  "place": "Bali, Indonesia"
+ },
+ "denpasar": {
+  "iata": "DPS",
+  "lat": -8.6525,
+  "lon": 115.2191,
+  "place": "Bali, Indonesia"
+ },
+ "jakarta": {
+  "iata": "CGK",
+  "lat": -6.1754,
+  "lon": 106.8272,
+  "place": "Jakarta, Indonesia"
+ },
+ "hanoi": {
+  "iata": "HAN",
+  "lat": 21.0283,
+  "lon": 105.854,
+  "place": "Hanoi, Vietnam"
+ },
+ "ho chi minh city": {
+  "iata": "SGN",
+  "lat": 10.7755,
+  "lon": 106.7021,
+  "place": "Ho Chi Minh City, Vietnam"
+ },
+ "manila": {
+  "iata": "MNL",
+  "lat": 14.5904,
+  "lon": 120.9804,
+  "place": "Manila, Philippines"
+ },
+ "hong kong": {
+  "iata": "HKG",
+  "lat": 22.2794,
+  "lon": 114.1625,
+  "place": "Hong Kong"
+ },
+ "shanghai": {
+  "iata": "PVG",
+  "lat": 31.2323,
+  "lon": 121.4691,
+  "place": "Shanghai, People's Republic of China"
+ },
+ "beijing": {
+  "iata": "PEK",
+  "lat": 39.9057,
+  "lon": 116.3913,
+  "place": "Beijing, People's Republic of China"
+ },
+ "tokyo": {
+  "iata": "HND",
+  "lat": 35.689,
+  "lon": 139.6929,
+  "place": "Tokyo, Tokyo Prefecture, Japan"
+ },
+ "osaka": {
+  "iata": "KIX",
+  "lat": 34.6836,
+  "lon": 135.5008,
+  "place": "Osaka-shi, Osaka, Japan"
+ },
+ "kyoto": {
+  "iata": "KIX",
+  "lat": 34.6836,
+  "lon": 135.5008,
+  "place": "Osaka-shi, Osaka, Japan"
+ },
+ "seoul": {
+  "iata": "ICN",
+  "lat": 37.5667,
+  "lon": 126.9783,
+  "place": "Seoul, South Korea"
+ },
+ "taipei": {
+  "iata": "TPE",
+  "lat": 25.0447,
+  "lon": 121.5395,
+  "place": "Taipei, Taipei, Taiwan"
+ },
+ "kathmandu": {
+  "iata": "KTM",
+  "lat": 27.7142,
+  "lon": 85.3109,
+  "place": "Kathmandu, Bagmati Province, Nepal"
+ },
+ "colombo": {
+  "iata": "CMB",
+  "lat": 6.934,
+  "lon": 79.8447,
+  "place": "Colombo, Colombo, Sri Lanka"
+ },
+ "dhaka": {
+  "iata": "DAC",
+  "lat": 23.7643,
+  "lon": 90.389,
+  "place": "Dhaka, Dhaka, Bangladesh"
+ },
+ "male": {
+  "iata": "MLE",
+  "lat": 4.178,
+  "lon": 73.5107,
+  "place": "Malé, Maldives"
+ },
+ "karachi": {
+  "iata": "KHI",
+  "lat": 24.8554,
+  "lon": 67.0205,
+  "place": "Karachi, Sindh, Pakistan"
+ },
+ "sydney": {
+  "iata": "SYD",
+  "lat": -33.8687,
+  "lon": 151.207,
+  "place": "Sydney, New South Wales, Australia"
+ },
+ "melbourne": {
+  "iata": "MEL",
+  "lat": -37.8142,
+  "lon": 144.9633,
+  "place": "Melbourne, Victoria, Australia"
+ },
+ "auckland": {
+  "iata": "AKL",
+  "lat": -36.847,
+  "lon": 174.7659,
+  "place": "Auckland, Auckland, New Zealand"
+ },
+ "rome": {
+  "iata": "FCO",
+  "lat": 41.9,
+  "lon": 12.4767,
+  "place": "Rome, Rome, Italy"
+ },
+ "milan": {
+  "iata": "MXP",
+  "lat": 45.4639,
+  "lon": 9.1886,
+  "place": "Milan, Milan, Italy"
+ },
+ "venice": {
+  "iata": "VCE",
+  "lat": 45.437,
+  "lon": 12.3363,
+  "place": "Venice, Venice, Italy"
+ },
+ "florence": {
+  "iata": "FLR",
+  "lat": 43.7715,
+  "lon": 11.2561,
+  "place": "Florence, Florence, Italy"
+ },
+ "barcelona": {
+  "iata": "BCN",
+  "lat": 41.3872,
+  "lon": 2.1654,
+  "place": "Barcelona, Barcelona, Spain"
+ },
+ "madrid": {
+  "iata": "MAD",
+  "lat": 40.4213,
+  "lon": -3.7012,
+  "place": "Madrid, Madrid, Spain"
+ },
+ "lisbon": {
+  "iata": "LIS",
+  "lat": 38.7173,
+  "lon": -9.1431,
+  "place": "Lisbon, Lisbon, Portugal"
+ },
+ "amsterdam": {
+  "iata": "AMS",
+  "lat": 52.378,
+  "lon": 4.9,
+  "place": "Amsterdam, North Holland, Netherlands"
+ },
+ "brussels": {
+  "iata": "BRU",
+  "lat": 50.8551,
+  "lon": 4.3512,
+  "place": "Brussels, Brussels-Capital, Belgium"
+ },
+ "berlin": {
+  "iata": "BER",
+  "lat": 52.5174,
+  "lon": 13.3951,
+  "place": "Berlin, Germany"
+ },
+ "munich": {
+  "iata": "MUC",
+  "lat": 48.137,
+  "lon": 11.576,
+  "place": "Munich, Bavaria, Germany"
+ },
+ "frankfurt": {
+  "iata": "FRA",
+  "lat": 50.1106,
+  "lon": 8.683,
+  "place": "Frankfurt, Hesse, Germany"
+ },
+ "vienna": {
+  "iata": "VIE",
+  "lat": 48.2084,
+  "lon": 16.3725,
+  "place": "Vienna, Austria"
+ },
+ "prague": {
+  "iata": "PRG",
+  "lat": 50.0875,
+  "lon": 14.4213,
+  "place": "Prague, Czech Republic"
+ },
+ "budapest": {
+  "iata": "BUD",
+  "lat": 47.4979,
+  "lon": 19.0402,
+  "place": "Budapest, Hungary"
+ },
+ "warsaw": {
+  "iata": "WAW",
+  "lat": 52.2307,
+  "lon": 21.0163,
+  "place": "Warsaw, Masovian Voivodeship, Poland"
+ },
+ "zurich": {
+  "iata": "ZRH",
+  "lat": 47.3697,
+  "lon": 8.5411,
+  "place": "Zürich, Zurich, Switzerland"
+ },
+ "geneva": {
+  "iata": "GVA",
+  "lat": 46.2048,
+  "lon": 6.1463,
+  "place": "Geneva, Geneva, Switzerland"
+ },
+ "athens": {
+  "iata": "ATH",
+  "lat": 37.9776,
+  "lon": 23.7293,
+  "place": "Athens, Attica, Greece"
+ },
+ "copenhagen": {
+  "iata": "CPH",
+  "lat": 55.6753,
+  "lon": 12.5697,
+  "place": "Copenhagen, Capital Region of Denmark, Denmark"
+ },
+ "stockholm": {
+  "iata": "ARN",
+  "lat": 59.3243,
+  "lon": 18.069,
+  "place": "Stockholm, Stockholm, Sweden"
+ },
+ "oslo": {
+  "iata": "OSL",
+  "lat": 59.9133,
+  "lon": 10.739,
+  "place": "Oslo, Norway"
+ },
+ "helsinki": {
+  "iata": "HEL",
+  "lat": 60.1675,
+  "lon": 24.9418,
+  "place": "Helsinki, Uusimaa, Finland"
+ },
+ "reykjavik": {
+  "iata": "KEF",
+  "lat": 64.1458,
+  "lon": -21.9436,
+  "place": "Reykjavík, Capital Region, Iceland"
+ },
+ "dublin": {
+  "iata": "DUB",
+  "lat": 53.3494,
+  "lon": -6.2606,
+  "place": "Dublin, Ireland"
+ },
+ "edinburgh": {
+  "iata": "EDI",
+  "lat": 55.9533,
+  "lon": -3.1884,
+  "place": "Edinburgh, City of Edinburgh, Scotland, United Kingdom"
+ },
+ "moscow": {
+  "iata": "SVO",
+  "lat": 55.7505,
+  "lon": 37.6175,
+  "place": "Moscow, Russia"
+ },
+ "santorini": {
+  "iata": "JTR",
+  "lat": 36.415,
+  "lon": 25.4325,
+  "place": "Santorini, South Aegean, Greece"
+ },
+ "mangaluru": {
+  "iata": "IXE",
+  "lat": 12.9141,
+  "lon": 74.856,
+  "place": "Mangaluru, Karnataka, India"
+ },
+ "coimbatore": {
+  "iata": "CJB",
+  "lat": 11.0168,
+  "lon": 76.9558,
+  "place": "Coimbatore, Tamil Nadu, India"
+ },
+ "madurai": {
+  "iata": "IXM",
+  "lat": 9.9252,
+  "lon": 78.1198,
+  "place": "Madurai, Tamil Nadu, India"
+ },
+ "tiruchirappalli": {
+  "iata": "TRZ",
+  "lat": 10.7905,
+  "lon": 78.7047,
+  "place": "Tiruchirappalli, Tamil Nadu, India"
+ },
+ "mysuru": {
+  "iata": "MYQ",
+  "lat": 12.2958,
+  "lon": 76.6394,
+  "place": "Mysuru, Karnataka, India"
+ },
+ "hubballi": {
+  "iata": "HBX",
+  "lat": 15.3647,
+  "lon": 75.124,
+  "place": "Hubballi, Karnataka, India"
+ },
+ "belagavi": {
+  "iata": "IXG",
+  "lat": 15.8497,
+  "lon": 74.4977,
+  "place": "Belagavi, Karnataka, India"
+ },
+ "visakhapatnam": {
+  "iata": "VTZ",
+  "lat": 17.6868,
+  "lon": 83.2185,
+  "place": "Visakhapatnam, Andhra Pradesh, India"
+ },
+ "vijayawada": {
+  "iata": "VGA",
+  "lat": 16.5062,
+  "lon": 80.648,
+  "place": "Vijayawada, Andhra Pradesh, India"
+ },
+ "tirupati": {
+  "iata": "TIR",
+  "lat": 13.6288,
+  "lon": 79.4192,
+  "place": "Tirupati, Andhra Pradesh, India"
+ },
+ "rajahmundry": {
+  "iata": "RJA",
+  "lat": 17.0005,
+  "lon": 81.804,
+  "place": "Rajahmundry, Andhra Pradesh, India"
+ },
+ "tuticorin": {
+  "iata": "TCR",
+  "lat": 8.7642,
+  "lon": 78.1348,
+  "place": "Tuticorin, Tamil Nadu, India"
+ },
+ "salem": {
+  "iata": "SXV",
+  "lat": 11.6643,
+  "lon": 78.146,
+  "place": "Salem, Tamil Nadu, India"
+ },
+ "puducherry": {
+  "iata": "PNY",
+  "lat": 11.9416,
+  "lon": 79.8083,
+  "place": "Puducherry, India"
+ },
+ "kozhikode": {
+  "iata": "CCJ",
+  "lat": 11.2588,
+  "lon": 75.7804,
+  "place": "Kozhikode, Kerala, India"
+ },
+ "kannur": {
+  "iata": "CNN",
+  "lat": 11.8745,
+  "lon": 75.3704,
+  "place": "Kannur, Kerala, India"
+ },
+ "raipur": {
+  "iata": "RPR",
+  "lat": 21.2514,
+  "lon": 81.6296,
+  "place": "Raipur, Chhattisgarh, India"
+ },
+ "ranchi": {
+  "iata": "IXR",
+  "lat": 23.3441,
+  "lon": 85.3096,
+  "place": "Ranchi, Jharkhand, India"
+ },
+ "bhopal": {
+  "iata": "BHO",
+  "lat": 23.2599,
+  "lon": 77.4126,
+  "place": "Bhopal, Madhya Pradesh, India"
+ },
+ "jabalpur": {
+  "iata": "JLR",
+  "lat": 23.1815,
+  "lon": 79.9864,
+  "place": "Jabalpur, Madhya Pradesh, India"
+ },
+ "gwalior": {
+  "iata": "GWL",
+  "lat": 26.2183,
+  "lon": 78.1828,
+  "place": "Gwalior, Madhya Pradesh, India"
+ },
+ "surat": {
+  "iata": "STV",
+  "lat": 21.1702,
+  "lon": 72.8311,
+  "place": "Surat, Gujarat, India"
+ },
+ "vadodara": {
+  "iata": "BDQ",
+  "lat": 22.3072,
+  "lon": 73.1812,
+  "place": "Vadodara, Gujarat, India"
+ },
+ "rajkot": {
+  "iata": "RAJ",
+  "lat": 22.3039,
+  "lon": 70.8022,
+  "place": "Rajkot, Gujarat, India"
+ },
+ "aurangabad": {
+  "iata": "IXU",
+  "lat": 19.8762,
+  "lon": 75.3433,
+  "place": "Aurangabad, Maharashtra, India"
+ },
+ "nashik": {
+  "iata": "ISK",
+  "lat": 19.9975,
+  "lon": 73.7898,
+  "place": "Nashik, Maharashtra, India"
+ },
+ "kolhapur": {
+  "iata": "KLH",
+  "lat": 16.705,
+  "lon": 74.2433,
+  "place": "Kolhapur, Maharashtra, India"
+ },
+ "shirdi": {
+  "iata": "SAG",
+  "lat": 19.7645,
+  "lon": 74.4767,
+  "place": "Shirdi, Maharashtra, India"
+ },
+ "prayagraj": {
+  "iata": "IXD",
+  "lat": 25.4358,
+  "lon": 81.8463,
+  "place": "Prayagraj, Uttar Pradesh, India"
+ },
+ "gaya": {
+  "iata": "GAY",
+  "lat": 24.7914,
+  "lon": 85.0002,
+  "place": "Gaya, Bihar, India"
+ },
+ "siliguri": {
+  "iata": "IXB",
+  "lat": 26.7271,
+  "lon": 88.3953,
+  "place": "Siliguri, West Bengal, India"
+ },
+ "jammu": {
+  "iata": "IXJ",
+  "lat": 32.7266,
+  "lon": 74.857,
+  "place": "Jammu, Jammu and Kashmir, India"
+ },
+ "imphal": {
+  "iata": "IMF",
+  "lat": 24.817,
+  "lon": 93.9368,
+  "place": "Imphal, Manipur, India"
+ },
+ "agartala": {
+  "iata": "IXA",
+  "lat": 23.8315,
+  "lon": 91.2868,
+  "place": "Agartala, Tripura, India"
+ },
+ "dibrugarh": {
+  "iata": "DIB",
+  "lat": 27.4728,
+  "lon": 94.912,
+  "place": "Dibrugarh, Assam, India"
+ },
+ "dimapur": {
+  "iata": "DMU",
+  "lat": 25.9063,
+  "lon": 93.727,
+  "place": "Dimapur, Nagaland, India"
+ },
+ "port blair": {
+  "iata": "IXZ",
+  "lat": 11.6234,
+  "lon": 92.7265,
+  "place": "Port Blair, Andaman and Nicobar Islands, India"
+ }
+}
