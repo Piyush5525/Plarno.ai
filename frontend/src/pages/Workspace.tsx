@@ -13,6 +13,8 @@ import TripBuilder from '../components/TripBuilder'
 import PlaceDetail from '../components/PlaceDetail'
 import RouteOptions from '../components/RouteOptions'
 import Guide from '../components/Guide'
+import Nearby from '../components/Nearby'
+import Sos from '../components/Sos'
 
 const TABS: [string, string, typeof Radio][] = [['guide', 'Live guide', Radio], ['itinerary', 'Itinerary', CalendarDays], ['map', 'Map', MapIcon], ['travel', 'Travel', Navigation], ['hotels', 'Hotels', BedDouble],
   ['areas', 'Areas', MapPin], ['budget', 'Budget', Wallet], ['safety', 'Safety', ShieldCheck], ['bookings', 'Bookings', Ticket], ['agents', 'Agents', Bot]]
@@ -250,7 +252,7 @@ function MapTab() {
     ...d.stops.map((s: Json, i: number) => ({ id: `s${i}`, lat: s.lat, lon: s.lon, label: `${s.start} ${s.name}`, color: s.type === 'meal' ? '#f6b73c' : '#f4553f', kind: s.type === 'meal' ? 'meal' : undefined, n: s.type === 'meal' ? undefined : attractionStops.indexOf(s) + 1 })),
   ], [d, hotel])
   useEffect(() => {  // real road route (Mapbox) for the day's stops; falls back to the straight-line sketch
-    setRoad(null); setActive(null)
+    setRoad(null)
     if (!hotel || attractionStops.length === 0) return
     const pts = [[hotel.lat, hotel.lon], ...attractionStops.map((s: Json) => [s.lat, s.lon]), [hotel.lat, hotel.lon]]
     let dead = false
@@ -261,7 +263,7 @@ function MapTab() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        {days.map((x, i) => <button key={i} onClick={() => setDay(i)} aria-pressed={i === day} className={`chip ${i === day ? 'chip-on' : ''}`}>Day {x.day}</button>)}
+        {days.map((x, i) => <button key={i} onClick={() => { setDay(i); setActive(null) }} aria-pressed={i === day} className={`chip ${i === day ? 'chip-on' : ''}`}>Day {x.day}</button>)}
         <div className="ml-auto"><Segmented id="mapview" label="View" value={view} onChange={setView} options={[['map', <><MapIcon className="h-3.5 w-3.5" aria-hidden />Map</>], ['list', <><List className="h-3.5 w-3.5" aria-hidden />List</>]]} /></div>
       </div>
       {view === 'map' ? (
@@ -441,7 +443,11 @@ function Safety() {
   if (!s) return <Empty title="No safety report" icon={<ShieldCheck className="h-7 w-7" />}>Plan a trip to see weather, air quality and emergency contacts for the destination.</Empty>
   const nr = s.neighbourhood_report ?? s.nearest_neighbourhood_report
   const env = nr?.environment ?? {}
+  const base = plan.itinerary?.hotel
   return (
+    <div className="space-y-5">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-rose-200 bg-rose-50 p-4"><p className="min-w-0 text-sm text-rose-900"><b>In trouble?</b> Send your live location to your emergency contact, and see the local emergency numbers.</p><Sos /></div>
+    {base && typeof base.lat === 'number' && <Nearby lat={base.lat} lon={base.lon} label={plan.hotel?.id === 'home' ? 'your home base' : `your stay, ${base.name}`} />}
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
       <div className="card space-y-3"><p className="font-display text-xl font-bold">Around {nr?.neighbourhood ?? s.city}</p>
         {env.aqi ? <Row k="Air quality (AQI)" v={`${env.aqi.value} · ${env.aqi.band}`} p={env.aqi.provenance} /> : <p className="text-sm text-ink/60">Air quality: no station data available for this location.</p>}
@@ -458,6 +464,7 @@ function Safety() {
         {s.emergency_contacts && <div className="card"><p className="font-display text-xl font-bold">Emergency contacts</p><ul className="mt-2 divide-y divide-ink/[.06] text-sm">{Object.entries(s.emergency_contacts).map(([k, v]) => <li key={k} className="flex justify-between gap-3 py-2"><span>{k}</span><span className="num font-bold text-lagoon-700">{String(v)}</span></li>)}</ul>
           {s.emergency_note && <p className="mt-2 text-xs text-ink/50">{s.emergency_note}</p>}<p className="mt-2 text-xs text-ink/50">{s.disclaimer}</p></div>}
       </div>
+    </div>
     </div>
   )
 }

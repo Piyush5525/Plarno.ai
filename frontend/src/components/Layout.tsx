@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { Compass, LogOut, Map as MapIcon, Menu, Plane, Send, ShieldCheck, Sparkles, Suitcase, User, X } from './icons'
 import { useApp } from '../store'
 import TripAssistant from './TripAssistant'
+import Sos from './Sos'
 
 const LINKS: [string, string, typeof Compass][] = [['/workspace', 'Plan', Sparkles], ['/discover', 'Discover', Compass], ['/transport', 'Ways to travel', Plane], ['/trips', 'My trips', Suitcase]]
 
@@ -52,6 +53,7 @@ export default function Layout() {
           </nav>
           <div className="hidden items-center gap-1.5 lg:flex">
             {user ? (<>
+              <Sos />
               <NavLink to="/profile" className={({ isActive }) => `${item(false)} ${isActive ? '!text-coral' : ''}`}><span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-lagoon to-sky text-xs font-bold uppercase text-white" aria-hidden>{(user.name || user.email || '?').slice(0, 1)}</span><span className="max-w-[120px] truncate">{user.name || user.email}</span></NavLink>
               <button onClick={logout} className={item(false)}><LogOut className="h-4 w-4" aria-hidden />Sign out</button>
             </>) : (<>
@@ -59,6 +61,7 @@ export default function Layout() {
               <Link to="/auth?mode=register" className="btn btn-primary btn-sm">Get started</Link>
             </>)}
           </div>
+          <div className="ml-auto lg:hidden"><Sos compact /></div>
           <button className={`grid h-11 w-11 place-items-center rounded-full lg:hidden ${dark ? 'text-white hover:bg-white/10' : 'hover:bg-ink/5'}`} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(o => !o)}>{open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
         </div>
         <AnimatePresence>

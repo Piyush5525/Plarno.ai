@@ -36,11 +36,12 @@ function RouteMap({ legs }: { legs: Json[] }) {
     { lat: legs[0].from_pt[0], lon: legs[0].from_pt[1], label: `Start: ${legs[0].from}`, color: '#0b1f33', n: 'A' },
     ...legs.map((l, i) => ({ lat: l.to_pt[0], lon: l.to_pt[1], label: i === legs.length - 1 ? `Arrive: ${l.to}` : `Change at ${l.to}`, color: i === legs.length - 1 ? '#f4553f' : PIN[legs[i + 1]?.mode] ?? '#0fa596', n: i === legs.length - 1 ? 'B' : i + 1 })),
   ], [key])
+  const dashed = useMemo(() => legs.map((l, i) => (l.mode === 'cab' || l.mode === 'bus' ? -1 : i)).filter(i => i >= 0), [key])
   if (!ok) return null
   return (
     <div>
-      <MapView pins={pins} route={lines} height={300} />
-      <p className="mt-1.5 text-xs text-ink/45">A = start, B = destination, numbers = where you change. Road legs follow real roads; rail and air legs are drawn as straight lines.</p>
+      <MapView pins={pins} route={lines} dashed={dashed} height={300} />
+      <p className="mt-1.5 text-xs text-ink/45">A = start, B = destination, numbers = where you change. Solid red = by road, along the real route. Dashed purple = by train or plane, drawn straight between the two stations (the actual track differs).</p>
     </div>
   )
 }

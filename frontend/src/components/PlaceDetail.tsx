@@ -104,7 +104,7 @@ export default function PlaceDetail({ item, kind, onClose, onAdd, addLabel, onCh
 
           {hasGeo && <MapView pins={[{ lat: item.lat, lon: item.lon, label: item.name, color: '#f4553f', kind: kind === 'hotel' ? 'hotel' : kind === 'restaurant' ? 'meal' : undefined, n: kind === 'attraction' ? '★' : undefined }]} center={[item.lon, item.lat]} height={220} />}
 
-          <div className="sticky bottom-0 -mx-5 -mb-5 flex flex-wrap gap-2 border-t border-ink/10 bg-white/95 p-4 backdrop-blur sm:-mx-7 sm:-mb-7 sm:px-7">
+          <div className="no-scrollbar sticky bottom-0 -mx-5 -mb-5 flex gap-2 overflow-x-auto border-t border-ink/10 bg-white/95 px-4 py-3 backdrop-blur [&>*]:shrink-0 [&>*]:whitespace-nowrap sm:-mx-7 sm:-mb-7 sm:flex-wrap sm:px-7 sm:py-4">
             {onChoose && <button className="btn btn-primary" disabled={busy} onClick={onChoose}><Check className="h-4 w-4" aria-hidden />{busy ? 'Updating…' : 'Choose this hotel'}</button>}
             {onAdd && <button className="btn btn-primary" disabled={busy} onClick={onAdd}><Plus className="h-4 w-4" aria-hidden />{busy ? 'Adding…' : addLabel ?? 'Add to my trip'}</button>}
             {item.booking_url && <a className="btn btn-dark" href={item.booking_url} target="_blank" rel="noreferrer">View &amp; book<ExternalLink className="h-4 w-4" aria-hidden /></a>}

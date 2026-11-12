@@ -7,6 +7,7 @@ import { useRebuild } from '../hooks'
 import { ErrorBox, MapView, Photo, Pin, Prov, Reveal, Stars } from './ui'
 import { LivePanel, WeatherIcon } from './Live'
 import PlaceDetail from './PlaceDetail'
+import Nearby from './Nearby'
 
 const TIP_ICON: Record<string, typeof Wallet> = { wallet: Wallet, rain: CloudRain, heat: ThermometerSun, cold: Snowflake, air: Wind, clock: AlarmClock, route: Route, calendar: CalendarDays, plane: Plane, bed: BedDouble, check: CheckCircle2 }
 const TIP_STYLE: Record<string, string> = { warn: 'bg-amber-100 text-amber-700', info: 'bg-sky-100 text-sky-700', good: 'bg-emerald-100 text-emerald-700' }
@@ -65,7 +66,7 @@ export default function Guide({ goTab }: { goTab: (tab: string) => void }) {
   ], [d, hotel])
   const [road, setRoad] = useState<Json | null>(null)
   useEffect(() => {
-    setRoad(null); setActive(null)
+    setRoad(null)
     if (!hotel || sights.length === 0) return
     let dead = false
     api('/route/directions', { body: { points: [[hotel.lat, hotel.lon], ...sights.map(s => [s.lat, s.lon]), [hotel.lat, hotel.lon]], profile: 'driving' } }).then(r => { if (!dead) setRoad(r) }).catch(() => {})
@@ -123,7 +124,7 @@ export default function Guide({ goTab }: { goTab: (tab: string) => void }) {
             {wxDay && <span className="badge bg-sky-50 text-sky-800" title={`Forecast for ${wxDay.date}`}><WeatherIcon text={wxDay.summary} className="h-3.5 w-3.5" />{wxDay.max_c}° / {wxDay.min_c}° · {Math.round(wxDay.pop * 100)}% rain</span>}
           </div>
           <div className="no-scrollbar mb-3 flex gap-1.5 overflow-x-auto" role="group" aria-label="Choose a day">
-            {days.map((x, i) => <button key={i} onClick={() => setDay(i)} aria-pressed={i === day} className={`chip !min-h-[34px] whitespace-nowrap ${i === day ? 'chip-on' : ''}`}>Day {x.day}{x.date === todayIso ? ' · today' : ''}</button>)}
+            {days.map((x, i) => <button key={i} onClick={() => { setDay(i); setActive(null) }} aria-pressed={i === day} className={`chip !min-h-[34px] whitespace-nowrap ${i === day ? 'chip-on' : ''}`}>Day {x.day}{x.date === todayIso ? ' · today' : ''}</button>)}
           </div>
           <MapView pins={pins} route={line} height={340} activeId={active} onPinClick={setActive} traveller />
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/55">
@@ -167,6 +168,8 @@ export default function Guide({ goTab }: { goTab: (tab: string) => void }) {
           <p className="mt-3 text-xs leading-relaxed text-ink/45">Tips are worked out from the forecast, air-quality readings, opening hours and your budget. They are checks, not guarantees.</p>
         </section>
       </div>
+
+      {hotel && typeof hotel.lat === 'number' && <Nearby lat={hotel.lat} lon={hotel.lon} label={plan.hotel?.id === 'home' ? 'your home base' : `your stay, ${hotel.name}`} />}
 
       {/* recommendations */}
       {recs?.places?.length > 0 && (

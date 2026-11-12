@@ -15,7 +15,7 @@ from . import config, db, security
 from .agents import core, orchestrator
 from .agents.context import TripContext
 from .data import seed
-from .providers import suggest as psuggest, geocode as pgeocode, serp_places as pserp, base as pbase, flights as pflights, gemini as pgemini, overpass as poverpass, staying as pstaying
+from .providers import telegram as ptelegram, nearby as pnearby, suggest as psuggest, geocode as pgeocode, serp_places as pserp, base as pbase, flights as pflights, gemini as pgemini, overpass as poverpass, staying as pstaying
 from .services import routes as proutes, booking, budget, catalog, geo, guide, itinerary, live, matching, safety, transport
 
 app = FastAPI(title="Plarno.ai", version="0.1.0")
@@ -94,8 +94,13 @@ def me(u: dict = Depends(user_dep)):
 
 @app.put("/api/me/preferences")
 def set_prefs(prefs: dict, u: dict = Depends(user_dep)):
-    allowed = {"vegetarian", "vegan", "pace", "currency", "language", "priority_preset", "weights", "share_location_consent", "trusted_contact"}
+    allowed = {"vegetarian", "vegan", "pace", "currency", "language", "priority_preset", "weights", "share_location_consent", "trusted_contact", "emergency_name", "emergency_phone"}
     clean = {k: v for k, v in prefs.items() if k in allowed}
+    for k in ("emergency_name", "emergency_phone", "trusted_contact"):
+        if k in clean:
+            clean[k] = str(clean[k] or "").strip()[:80]
+    if clean.get("emergency_phone") and not re.fullmatch(r"\+?[\d\s().-]{6,20}", clean["emergency_phone"]):
+        raise HTTPException(422, "Enter the emergency contact's phone number with digits only (a leading + is fine).")
     db.run("UPDATE users SET preferences=? WHERE id=?", (json.dumps(clean), u["id"]))
     return {"preferences": clean}
 
@@ -631,6 +636,8 @@ def routes_options(origin: str, destination: str, date: str, travellers: int = 1
             first["from"] = opt["via"][0] = og["spot"]
         if dg.get("spot") and last["mode"] == "cab" and last["to"] == dg["name"]:
             last["to"] = opt["via"][-1] = dg["spot"]
+        if og.get("spot"):  # "24 km from Jaipur" reads wrong when the start is a campus in Jaipur
+            opt["notes"] = [n.replace(f"from {og['name']}.", f"from {og['spot']}.").replace(f"station to {og['name']}:", f"station to {og['spot']}:") for n in opt["notes"]]
     keys = ("name", "display", "lat", "lon", "country", "country_code", "spot")
     return {"origin": {k: og.get(k) for k in keys}, "destination": {k: dg.get(k) for k in keys}, "date": date, "trip": trip, **res}
 
@@ -663,6 +670,102 @@ def trip_guide(trip_id: int, ai: bool = True, u: dict = Depends(user_dep)):
     pool = world_cat["attractions"] if world_cat else catalog.attractions()
     rest = world_cat["restaurants"] if world_cat else catalog.restaurants()
     return guide.build(ctx, plan, pool, rest, ai)
+
+
+@app.get("/api/nearby")
+def nearby_places(lat: float, lon: float, kind: str = "pharmacy"):
+    """Essentials near a point: pharmacy | hospital | grocery | supermarket | atm | police. Real listings with distance, address and phone when listed."""
+    if kind not in pnearby.KINDS:
+        raise HTTPException(422, f"kind must be one of {list(pnearby.KINDS)}")
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        raise HTTPException(422, "lat/lon out of range")
+    return pnearby.search(kind, lat, lon)
+
+
+# ---------- emergency alert (SOS) ----------
+_sos: dict[int, dict] = {}   # user id -> the live alert in progress {message_id, started, last, until}
+SOS_MINUTES = 15
+
+
+class SosIn(BaseModel):
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    accuracy_m: float | None = Field(default=None, ge=0, le=100000)
+    note: str | None = Field(default=None, max_length=200)
+    test: bool = False
+
+
+def _prefs(u: dict) -> dict:
+    return json.loads(u.get("preferences") or "{}")
+
+
+@app.get("/api/sos/status")
+def sos_status(u: dict = Depends(user_dep)):
+    p, cur = _prefs(u), _sos.get(u["id"])
+    active = bool(cur and cur["until"] > time.time())
+    return {"configured": ptelegram.available(), "channel": "Telegram", "contact": {"name": p.get("emergency_name") or "", "phone": p.get("emergency_phone") or ""},
+            "active": active, "seconds_left": max(0, int(cur["until"] - time.time())) if active else 0, "minutes": SOS_MINUTES}
+
+
+@app.post("/api/sos")
+def sos_send(body: SosIn, u: dict = Depends(user_dep)):
+    """Sends an emergency alert with the person's live location. Only ever triggered by the signed-in person pressing the button."""
+    if not ptelegram.available():
+        raise HTTPException(503, "Emergency alerts are not set up on this server yet. Call the local emergency number instead.")
+    cur = _sos.get(u["id"])
+    if cur and time.time() - cur["started"] < 20:
+        raise HTTPException(429, "An alert was sent a moment ago. Your location is still being shared.")
+    p = _prefs(u)
+    who = (u.get("name") or "").strip() or u["email"]
+    place = pgeocode.at(body.lat, body.lon, None)
+    maps = f"https://www.google.com/maps?q={body.lat:.6f},{body.lon:.6f}"
+    lines = [("TEST ALERT (no action needed)" if body.test else "EMERGENCY ALERT") + " from Plarno.ai", "",
+             f"{who} pressed the SOS button" + (" to test the alert." if body.test else " and may need help."),
+             f"Account: {u['email']}"]
+    if p.get("emergency_name") or p.get("emergency_phone"):
+        lines.append("Emergency contact on file: " + " ".join(x for x in (p.get("emergency_name"), p.get("emergency_phone")) if x))
+    else:
+        lines.append("Emergency contact on file: none saved")
+    if body.note:
+        lines.append(f"Message: {body.note.strip()}")
+    lines += ["", "Location: " + (place["display"] if place else "(name not available)"), f"Coordinates: {body.lat:.5f}, {body.lon:.5f}" + (f" (accurate to about {round(body.accuracy_m)} m)" if body.accuracy_m else ""),
+              f"Open in Google Maps: {maps}", "", f"Sent {time.strftime('%d %b %Y %H:%M UTC', time.gmtime())}. A live location follows and updates for up to {SOS_MINUTES} minutes while their app stays open."]
+    try:
+        ptelegram.send_text("\n".join(lines))
+        mid = ptelegram.send_live_location(body.lat, body.lon, SOS_MINUTES)
+    except RuntimeError as e:
+        raise HTTPException(502, str(e))
+    now = time.time()
+    _sos[u["id"]] = {"message_id": mid, "started": now, "last": now, "until": now + SOS_MINUTES * 60}
+    db.audit(u["id"], "sos_test" if body.test else "sos", {"lat": round(body.lat, 4), "lon": round(body.lon, 4)})
+    return {"sent": True, "channel": "Telegram", "minutes": SOS_MINUTES, "place": place["display"] if place else None, "maps_url": maps}
+
+
+@app.post("/api/sos/update")
+def sos_update(body: SosIn, u: dict = Depends(user_dep)):
+    cur = _sos.get(u["id"])
+    if not cur or cur["until"] < time.time():
+        raise HTTPException(409, "No alert is active.")
+    if time.time() - cur["last"] < 8:
+        return {"updated": False, "seconds_left": int(cur["until"] - time.time())}
+    try:
+        ptelegram.update_live_location(cur["message_id"], body.lat, body.lon)
+    except RuntimeError as e:
+        raise HTTPException(502, str(e))
+    cur["last"] = time.time()
+    return {"updated": True, "seconds_left": int(cur["until"] - time.time())}
+
+
+@app.post("/api/sos/stop")
+def sos_stop(u: dict = Depends(user_dep)):
+    cur = _sos.pop(u["id"], None)
+    if cur and ptelegram.available():
+        ptelegram.stop_live_location(cur["message_id"])
+        try:
+            ptelegram.send_text(f"{(u.get('name') or '').strip() or u['email']} stopped sharing their location and marked themselves safe.")
+        except RuntimeError:
+            pass
+    return {"stopped": bool(cur)}
 
 
 class JourneyIn(BaseModel):

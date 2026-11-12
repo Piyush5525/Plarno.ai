@@ -22,7 +22,7 @@ function Toggle({ checked, onChange, label, sub }: { checked: boolean; onChange:
 
 export default function Profile() {
   const { user } = useApp()
-  const [p, setP] = useState<Json>({ vegetarian: false, vegan: false, pace: 'balanced', priority_preset: '', share_location_consent: false, trusted_contact: '' })
+  const [p, setP] = useState<Json>({ vegetarian: false, vegan: false, pace: 'balanced', priority_preset: '', share_location_consent: false, trusted_contact: '', emergency_name: '', emergency_phone: '' })
   const [saved, setSaved] = useState(false)
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -58,9 +58,13 @@ export default function Profile() {
               <span><span className="block text-sm font-semibold">{l}</span><span className="block text-xs text-ink/55">{d}</span></span>
               <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition ${(p.priority_preset ?? '') === k ? 'border-coral bg-coral text-white' : 'border-ink/20'}`} aria-hidden>{(p.priority_preset ?? '') === k && <Check className="h-3 w-3" />}</span></button>))}</div>
         </section>
-        <section className="card"><h2 className="flex items-center gap-2 font-display text-lg font-bold"><MapPin className="h-4 w-4 text-sky" aria-hidden />Safety contact</h2>
-          <label className="label mt-3" htmlFor="pf-contact">Trusted contact (for future SOS sharing)</label><input id="pf-contact" className="input" maxLength={80} value={p.trusted_contact ?? ''} onChange={e => upd({ trusted_contact: e.target.value })} placeholder="Name or phone" />
-          <div className="-mx-3 mt-2"><Toggle label="Share my live location with this contact" sub="Consent only. The sharing feature itself is not active yet." checked={!!p.share_location_consent} onChange={v => upd({ share_location_consent: v })} /></div>
+        <section className="card"><h2 className="flex items-center gap-2 font-display text-lg font-bold"><MapPin className="h-4 w-4 text-sky" aria-hidden />Emergency contact</h2>
+          <p className="mt-1 text-sm text-ink/60">Who should be reached if you press the red <b>SOS</b> button. Their name and number go into the alert together with your live location.</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div><label className="label" htmlFor="pf-ename">Emergency contact name</label><input id="pf-ename" className="input" maxLength={80} autoComplete="off" value={p.emergency_name ?? ''} onChange={e => upd({ emergency_name: e.target.value })} placeholder="e.g. Mum, or a friend" /></div>
+            <div><label className="label" htmlFor="pf-ephone">Their phone number</label><input id="pf-ephone" className="input num" type="tel" inputMode="tel" maxLength={20} autoComplete="off" value={p.emergency_phone ?? ''} onChange={e => upd({ emergency_phone: e.target.value })} placeholder="+91 98765 43210" /></div>
+          </div>
+          <p className="mt-2 text-xs text-ink/50">Your location is only ever sent when you press SOS and confirm. Save your changes below, then try “Send a test alert” from the SOS button.</p>
         </section>
         {err && <ErrorBox msg={err} />}
         <div className="sticky bottom-4 z-10 flex items-center gap-3 rounded-full border border-ink/[.07] bg-white/90 p-2 pl-5 shadow-lift backdrop-blur">

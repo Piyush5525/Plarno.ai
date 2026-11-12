@@ -118,14 +118,17 @@ const SVG_FORK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" st
 
 /** MapLibre map; Mapbox tiles when a public token is configured, else OpenStreetMap. Pins are real provider coordinates.
  *  `activeId` highlights a pin (and flies to it), `traveller` runs a dot along the route, and the locate control shows the user's own live position. */
-export function MapView({ pins, route, height = 420, center, activeId, onPinClick, traveller = false, className = '' }: {
-  pins: Pin[]; route?: [number, number][][]; height?: number | string; center?: [number, number]; activeId?: string | null; onPinClick?: (id: string) => void; traveller?: boolean; className?: string
+export function MapView({ pins, route, dashed, height = 420, center, activeId, onPinClick, traveller = false, className = '' }: {
+  pins: Pin[]; route?: [number, number][][]; /** indexes of `route` lines to draw dashed (legs that are not a real road path: rail, air) */ dashed?: number[]; height?: number | string; center?: [number, number]; activeId?: string | null; onPinClick?: (id: string) => void; traveller?: boolean; className?: string
 }) {
   const el = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
   const markers = useRef<{ m: maplibregl.Marker; el: HTMLElement; pin: Pin }[]>([])
   const click = useRef(onPinClick)
   click.current = onPinClick
+  const styleReady = useRef(false)
+  const activeRef = useRef(activeId)
+  activeRef.current = activeId
   const [ready, setReady] = useState(0)
   const [failed, setFailed] = useState(false)
   const reduce = useReducedMotion()
@@ -145,15 +148,19 @@ export function MapView({ pins, route, height = 420, center, activeId, onPinClic
         map.current.addControl(new maplibregl.FullscreenControl(), 'top-right')
         map.current.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: true }), 'top-right')
         map.current.addControl(new maplibregl.ScaleControl({ maxWidth: 90 }), 'bottom-left')
-        setReady(r => r + 1)
+        // draw only once the style has loaded, and from then on draw immediately: map.loaded() turns false again whenever tiles are
+        // loading, so waiting on it (or on another 'load' event, which never repeats) would drop later route updates
+        const mm = map.current
+        const go = () => { if (styleReady.current || map.current !== mm) return; styleReady.current = true; setReady(r => r + 1) }
+        if (mm.isStyleLoaded()) go(); else { mm.once('style.load', go); mm.once('load', go); mm.once('idle', go) }  // whichever comes first: all mean sources and layers can be added
       } catch { setFailed(true) }
     })
-    return () => { dead = true; map.current?.remove(); map.current = null }
+    return () => { dead = true; styleReady.current = false; map.current?.remove(); map.current = null }
   }, [])
 
   useEffect(() => {
     const m = map.current
-    if (!m) return
+    if (!m || !styleReady.current) return
     markers.current.forEach(x => x.m.remove()); markers.current = []
     const b = new maplibregl.LngLatBounds()
     pins.forEach((p, i) => {
@@ -170,19 +177,21 @@ export function MapView({ pins, route, height = 420, center, activeId, onPinClic
       wrap.appendChild(d)
       const mk = new maplibregl.Marker({ element: wrap }).setLngLat([p.lon, p.lat]).setPopup(new maplibregl.Popup({ offset: 18, closeButton: false }).setText(p.label)).addTo(m)
       if (p.id) wrap.addEventListener('click', () => click.current?.(p.id!))
+      if (p.id && p.id === activeRef.current) { d.classList.add('is-active'); wrap.style.zIndex = '5' }  // keep the highlight when pins are rebuilt (e.g. the road line arrives)
       markers.current.push({ m: mk, el: d, pin: p })
       b.extend([p.lon, p.lat])
     })
     let raf = 0
     let dot: maplibregl.Marker | null = null
     const draw = () => {
-      for (const id of ['route-line', 'route-casing']) if (m.getLayer(id)) m.removeLayer(id)
+      for (const id of ['route-line', 'route-dash', 'route-casing']) if (m.getLayer(id)) m.removeLayer(id)
       if (m.getSource('route-line')) m.removeSource('route-line')
       if (route?.length) {
         route.forEach(r => r.forEach(c => b.extend(c)))
-        m.addSource('route-line', { type: 'geojson', data: { type: 'FeatureCollection', features: route.map(r => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: r } })) } })
+        m.addSource('route-line', { type: 'geojson', data: { type: 'FeatureCollection', features: route.map((r, i) => ({ type: 'Feature', properties: { dashed: !!dashed?.includes(i) }, geometry: { type: 'LineString', coordinates: r } })) } })
         m.addLayer({ id: 'route-casing', type: 'line', source: 'route-line', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 7, 'line-opacity': 0.9 } })
-        m.addLayer({ id: 'route-line', type: 'line', source: 'route-line', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#f4553f', 'line-width': 4 } })
+        m.addLayer({ id: 'route-line', type: 'line', source: 'route-line', filter: ['!=', ['get', 'dashed'], true], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#f4553f', 'line-width': 4 } })
+        m.addLayer({ id: 'route-dash', type: 'line', source: 'route-line', filter: ['==', ['get', 'dashed'], true], layout: { 'line-join': 'round' }, paint: { 'line-color': '#7c3aed', 'line-width': 3.5, 'line-dasharray': [1.6, 1.4] } })
         const path = route[0]
         if (traveller && !reduce && path.length > 1) {  // a dot that keeps travelling the day's route
           const node = document.createElement('div'); node.className = 'pl-me'; node.style.background = '#0b1f33'
@@ -203,9 +212,9 @@ export function MapView({ pins, route, height = 420, center, activeId, onPinClic
       }
       if (!b.isEmpty()) m.fitBounds(b, { padding: 64, maxZoom: 14.5, duration: 700 })
     }
-    if (m.loaded()) draw(); else m.once('load', draw)
-    return () => { cancelAnimationFrame(raf); dot?.remove(); m.off('load', draw) }
-  }, [pins, route, ready, traveller])
+    draw()
+    return () => { cancelAnimationFrame(raf); dot?.remove() }
+  }, [pins, route, dashed, ready, traveller])
 
   useEffect(() => {  // highlight without rebuilding the markers
     const m = map.current

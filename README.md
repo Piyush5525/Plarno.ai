@@ -15,7 +15,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-Python%203.11+-009688?logo=fastapi&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-dev%20DB-003B57?logo=sqlite&logoColor=white">
   <img alt="Gemini" src="https://img.shields.io/badge/Gemini-language%20layer-8E75B2?logo=googlegemini&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-84%20API%20%C2%B7%2047%20browser-2ea44f">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-97%20API%20%C2%B7%2047%20browser-2ea44f">
   <img alt="Status" src="https://img.shields.io/badge/status-prototype-orange">
 </p>
 
@@ -39,6 +39,8 @@
 | 💸 **A budget you can trust** | Every number is labelled `live`, `cached`, `estimated` or `simulated`. Go over budget and Plarno re-plans, telling you exactly what it relaxed. |
 | 🔁 **Dependency-aware replanning** | Change the hotel and only the agents that depend on it re-run (routes, meals, safety, budget). Change the travel mode and only transport and budget re-run. |
 | 🎙️ **Talk to TRIP** | Type or speak. TRIP runs real searches, changes your plan, answers questions from your trip's own data and explains why. |
+| 🧭 **Door-to-door routes that exist** | Trains between real major stations with the ride to and from them, buses, cabs and live flights. Each route opens with a map, fares by class, and links to check timings and book. Start from your own location. |
+| 🚑 **Essentials and SOS** | Pharmacies, hospitals, groceries, ATMs and police near your stay or near you, with call and directions. A red SOS button sends your live location and your saved emergency contact to a Telegram bot, and shows the local emergency numbers. |
 | 🛡️ **You stay in control** | Nothing is booked for you. Agents can only *prepare* and *request approval*; bookings happen on the provider's own site. |
 
 ## Screens
@@ -302,7 +304,7 @@ flowchart TB
 | Storage | SQLite for development; production schema for Postgres + PostGIS + pgvector in [`docs/schema.sql`](docs/schema.sql) |
 | Data | SerpApi (Google Maps, Hotels, Flights), Mapbox, OpenWeather, AQICN, Photon / OpenStreetMap |
 | Language | Google Gemini (understanding, briefing, grounded Q&A) |
-| Quality | pytest (84), Playwright (47 end-to-end checks, plus a click-everything accessibility crawler) |
+| Quality | pytest (97), Playwright (47 end-to-end checks, plus a click-everything accessibility crawler) |
 
 ## Project structure
 
@@ -315,7 +317,7 @@ Plarno.ai/
 │   │   ├── services/            itinerary, routes, budget, guide, world catalogue, safety, matching, recovery
 │   │   ├── providers/           SerpApi, Mapbox, Photon, geocoding, Gemini, caching, rate limits
 │   │   └── data/                airports, demo dataset (provenance-tagged)
-│   └── tests/                   84 tests with real provider response shapes injected
+│   └── tests/                   97 tests with real provider response shapes injected
 ├── frontend/
 │   └── src/
 │       ├── pages/               Landing, Workspace, Discover, Transport, Trips, Profile, Auth, Admin
@@ -360,6 +362,7 @@ Open **http://localhost:5173**, create an account and plan a trip. The first pla
 | `WEATHER_API` | Live weather and the 5-day forecast | OpenWeather |
 | `AQICN_API` | Air quality | AQICN / WAQI |
 | `GEMINI_API` | Understanding, the AI briefing, grounded Q&A | Model via `GEMINI_MODEL` (default `gemini-flash-lite-latest`) |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | SOS alerts with live location | Bot token from @BotFather and the chat that receives alerts. Without them the SOS dialog still shows emergency numbers |
 | `PHOTON_URL` | College / station search | Defaults to the public `photon.komoot.io` (fair use). Self-host for heavy use |
 | `PLARNO_SECRET` | Signing session tokens | **Required in production** |
 | `PLARNO_ADMIN_EMAILS` | Admin access to supplier tools | Comma-separated emails that register as admin |
@@ -407,7 +410,7 @@ Order: deploy Railway first and copy its address → deploy Vercel with `VITE_AP
 ## Testing
 
 ```bash
-cd backend && python -m pytest -q                      # 84 tests, fully offline
+cd backend && python -m pytest -q                      # 97 tests, fully offline
 
 pip install playwright && python -m playwright install chromium
 python e2e/site_check.py                               # 47 checks across every page (both servers running)
