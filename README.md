@@ -29,8 +29,18 @@
   <img src="docs/images/hero.jpg" alt="Plarno.ai landing page with the TRIP bot" width="92%">
 </p>
 
+## Watch the demo
+
+<p align="center">
+  <a href="https://youtu.be/wTrtzYmnRwY" title="Watch the Plarno.ai demo on YouTube">
+    <img src="https://img.youtube.com/vi/wTrtzYmnRwY/maxresdefault.jpg" alt="Plarno.ai demo video: click to play on YouTube" width="80%">
+  </a>
+  <br>
+  <a href="https://youtu.be/wTrtzYmnRwY"><b>▶ Watch the full walkthrough on YouTube</b></a>
+</p>
+
 ## Contents
-[Try it live](#try-it-live) · [What it does](#what-it-does) · [Screens](#screens) · [Meet TRIP](#meet-trip) · [How it works](#how-it-works) · [The live guide](#the-live-guide) · [Finding any place, even your college](#finding-any-place-even-your-college) · [Routes you can actually take](#routes-you-can-actually-take) · [Essentials and SOS](#essentials-and-sos) · [Safe by design](#safe-by-design) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Project structure](#project-structure) · [Getting started](#getting-started) · [Deploy](#deploy) · [API](#api-overview) · [Testing](#testing) · [Demo script](#demo-script) · [Honest limits](#honest-limits) · [Docs](#docs)
+[Watch the demo](#watch-the-demo) · [Try it live](#try-it-live) · [What it does](#what-it-does) · [Screens](#screens) · [Meet TRIP](#meet-trip) · [How it works](#how-it-works) · [The live guide](#the-live-guide) · [Finding any place, even your college](#finding-any-place-even-your-college) · [Routes you can actually take](#routes-you-can-actually-take) · [Essentials and SOS](#essentials-and-sos) · [Safe by design](#safe-by-design) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Project structure](#project-structure) · [Getting started](#getting-started) · [Deploy](#deploy) · [API](#api-overview) · [Testing](#testing) · [Demo script](#demo-script) · [Honest limits](#honest-limits) · [Docs](#docs)
 
 ---
 
